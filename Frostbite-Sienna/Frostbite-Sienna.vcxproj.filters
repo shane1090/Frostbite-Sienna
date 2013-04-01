@@ -72,6 +72,9 @@
     <ClCompile Include="GameScreen.cpp">
       <Filter>Source Files\ScreenManager</Filter>
     </ClCompile>
+    <ClCompile Include="SegmentPanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Map.h">
@@ -106,6 +109,9 @@
     </ClInclude>
     <ClInclude Include="ScreenManager.h">
       <Filter>Header Files\ScreenManager</Filter>
+    </ClInclude>
+    <ClInclude Include="SegmentPanel.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

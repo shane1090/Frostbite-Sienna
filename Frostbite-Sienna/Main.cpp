@@ -4,7 +4,7 @@
 
 int main()
 {
-	sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP), "Frostbite Sienna");
+	sf::RenderWindow Window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_BPP), "Frostbite Sienna", !sf::Style::Resize | sf::Style::Close);
 
 	ScreenManager::GetInstance().Initialize();
 	ScreenManager::GetInstance().LoadContent();
@@ -18,7 +18,7 @@ int main()
 		{
 			Window.clear(sf::Color(100,149,237));
 		
-			if (currentEvent.type == sf::Event::Closed || currentEvent.key.code == sf::Keyboard::Escape)
+			if (currentEvent.type == sf::Event::Closed)
 			{
 				Window.close();
 			}

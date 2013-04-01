@@ -91,6 +91,7 @@
     <ClCompile Include="MapSegment.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="SegmentDefinition.cpp" />
+    <ClCompile Include="SegmentPanel.cpp" />
     <ClCompile Include="SplashScreen.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="TitleScreen.cpp" />
@@ -103,6 +104,7 @@
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="SegmentDefinition.h" />
+    <ClInclude Include="SegmentPanel.h" />
     <ClInclude Include="SplashScreen.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tinyxml2.h" />

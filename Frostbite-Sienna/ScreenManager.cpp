@@ -29,7 +29,7 @@ void ScreenManager::AddScreen(GameScreen *screen)
 
 void ScreenManager::Initialize()
 {
-	currentScreen = new SplashScreen();
+	currentScreen = new EditorScreen();
 }
 
 void ScreenManager::LoadContent()
