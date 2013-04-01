@@ -100,6 +100,8 @@ void Map::DrawSegmentSelection(sf::RenderWindow &renderWindow)
 		segSprite.setPosition((float)dRect.left, (float)dRect.top);
 		renderWindow.draw(segSprite);
 
+		
+
 		curCol++;
 		if (curCol == segCols) {
 			curCol = 0;

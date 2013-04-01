@@ -15,4 +15,7 @@
 #include <sstream>
 #include <string>
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "tinyxml2.h"

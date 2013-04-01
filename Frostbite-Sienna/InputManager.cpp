@@ -11,9 +11,16 @@ InputManager::~InputManager()
 
 }
 
-void InputManager::Update(sf::Event event)
+void InputManager::Update(sf::RenderWindow &Window, sf::Event event)
 {
 	this->event = event;
+}
+
+bool InputManager::MouseButtonPressed(sf::Mouse::Button button)
+{
+	if (event.MouseButtonPressed == button)
+		return true;
+	return false;
 }
 
 bool InputManager::KeyPressed(sf::Keyboard::Key key)

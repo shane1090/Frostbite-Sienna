@@ -24,7 +24,7 @@ void GameScreen::UnloadContent()
 
 void GameScreen::Update(sf::RenderWindow &Window, sf::Event event)
 {
-
+	
 }
 
 void GameScreen::Draw(sf::RenderWindow &window)

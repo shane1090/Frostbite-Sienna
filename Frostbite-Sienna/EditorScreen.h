@@ -17,10 +17,14 @@ public:
 	void Update(sf::RenderWindow &Window, sf::Event event);
 	void Draw(sf::RenderWindow &window);
 	void DrawSegmentSelection(sf::RenderWindow &Window);
+	void DrawMap(sf::RenderWindow &Window);
+	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
+	void AddSegment(int layer, int index);
 
 protected:
 private:
 	void LoadSegmentDefinitions();
+	int GetHoveredSegement(sf::Vector2<int> mousePos, int layer);
 
 	sf::Text text;
 	sf::Font font;
@@ -30,6 +34,13 @@ private:
 
 	enum drawingMode_t { SEGMENT_SELECTION, LEDGES };
 	drawingMode_t drawingMode;
+
+	sf::Vector2<float> scroll;
+
+	int curLayer;
+	int mouseDragSegment, mouseHoverSegment, mouseSelectedSegment;
+
+	bool leftMouseDown, prevLeftMouseDown;
 
 };
 

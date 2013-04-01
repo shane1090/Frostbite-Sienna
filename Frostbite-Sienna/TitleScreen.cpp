@@ -30,7 +30,7 @@ void TitleScreen::UnloadContent()
 
 void TitleScreen::Update(sf::RenderWindow &Window, sf::Event event)
 {
-	input.Update(event);
+	input.Update(Window, event);
 
 	if (input.KeyPressed(keys))
 		ScreenManager::GetInstance().AddScreen(new EditorScreen);
