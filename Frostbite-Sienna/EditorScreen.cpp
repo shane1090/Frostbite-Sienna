@@ -81,6 +81,15 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 				mouseSelectedSegment = -1;
 				mouseHoverSegment = -1;
 			}
+
+			// Allow rotation of segments
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+			{
+				float angle = atan2((input.mousePos.y - mapSeg[mouseSelectedSegment]->location.y) + scroll.y,
+								    (input.mousePos.x - mapSeg[mouseSelectedSegment]->location.x) + scroll.x);
+
+				mapSeg[mouseSelectedSegment]->rotation = angle * (180.0f/M_PI);
+			}
 		}
 
 		break;
