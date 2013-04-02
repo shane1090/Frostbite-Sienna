@@ -1,5 +1,4 @@
-#ifndef EDITORSCREEN_H
-#define EDITORSCREEN_H
+#pragma once
 
 #include "GameScreen.h"
 #include "ScreenManager.h"
@@ -19,7 +18,7 @@ public:
 	void Draw(sf::RenderWindow &window);
 	void DrawMap(sf::RenderWindow &Window);
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
-	void AddSegment(int layer, int index);
+	std::string Convert(float number);
 
 private:
 	void LoadSegmentDefinitions();
@@ -43,6 +42,8 @@ private:
 
 	SegmentPanel* segmentPanel;
 
-};
+	// Text elements
+	sf::Text scrollPosText;
+	sf::Text curLayerText;
 
-#endif // EDITORSCREEN_H
+};

@@ -57,10 +57,10 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 				mouseDragSegment = -1;
 			else
 			{
-				sf::Vector2<float> loc = mapSeg[mouseDragSegment]->location;
+				sf::Vector2<float> loc = mapSeg[mouseDragSegment]->position;
 				loc.x += (input.mousePos.x - input.prevMousePos.x) / layerScales[curLayer];
 				loc.y += (input.mousePos.y - input.prevMousePos.y) / layerScales[curLayer];
-				mapSeg[mouseDragSegment]->location = loc;
+				mapSeg[mouseDragSegment]->position = loc;
 			}
 		}
 
@@ -82,13 +82,14 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 				std::cout << "Map segment deleted: " << mouseSelectedSegment << std::endl;
 				mapSeg.erase(mapSeg.begin()+mouseSelectedSegment);
 				mouseSelectedSegment = -1;
+				mouseHoverSegment = -1;
 			}
 
 			// Allow rotation of segments
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 			{
-				float angle = atan2((input.mousePos.y - mapSeg[mouseSelectedSegment]->location.y) + scroll.y,
-								    (input.mousePos.x - mapSeg[mouseSelectedSegment]->location.x) + scroll.x);
+				float angle = atan2((input.mousePos.y - mapSeg[mouseSelectedSegment]->position.y) + scroll.y,
+								    (input.mousePos.x - mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
 
 				mapSeg[mouseSelectedSegment]->rotation = angle * (180.0f/M_PI);
 			}
@@ -115,7 +116,12 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		scroll.y -= (input.mousePos.y - input.prevMousePos.y) * 2.0f;
 	}
 
-	segmentPanel->Update(curLayer, input, mapSeg);
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+	{
+		scroll = sf::Vector2<float>(-640.0f, -360.0f);
+	}
+
+	segmentPanel->Update(curLayer, input, scroll);
 
 	input.prevMousePos = input.mousePos;
 	prevLeftMouseDown = leftMouseDown;
@@ -128,20 +134,46 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 	switch (drawingMode)
 	{
 	case SEGMENT_SELECTION:
-		segmentPanel->Draw(input, Window);
-
 		if (mouseHoverSegment > -1)
 			DrawSelectedSegment(Window, mouseHoverSegment, sf::Color::White);
 
 		if (mouseSelectedSegment > -1)
 			DrawSelectedSegment(Window, mouseSelectedSegment, sf::Color::Red);
 
-
+		segmentPanel->Draw(input, Window);
 		break;
 	case LEDGES:
 
 		break;
 	}
+
+	std::string layerName = "map";
+	switch (curLayer)
+	{
+	case 0:
+		layerName = "back";
+		break;
+	case 1:
+		layerName = "mid";
+		break;
+	case 2:
+		layerName = "fore";
+		break;
+	}
+
+	curLayerText.setString("Current Layer: " + layerName);
+	curLayerText.setColor(sf::Color(255,255,255,255));
+	curLayerText.setPosition(10, 675);
+	curLayerText.setFont(font);
+	curLayerText.setCharacterSize(14);
+	Window.draw(curLayerText);
+
+	scrollPosText.setString("Position: " + Convert(scroll.x + 640.0f) + "," + Convert(scroll.y + 360.0f));
+	scrollPosText.setColor(sf::Color(255,255,255,255));
+	scrollPosText.setPosition(10, 695);
+	scrollPosText.setFont(font);
+	scrollPosText.setCharacterSize(14);
+	Window.draw(scrollPosText);
 }
 
 void EditorScreen::DrawMap(sf::RenderWindow &Window)
@@ -153,8 +185,8 @@ void EditorScreen::DrawMap(sf::RenderWindow &Window)
 			if (mapSeg[i]->layer == l)
 			{
 				sf::Rect<float> dRect;
-				dRect.left = (mapSeg[i]->location.x - scroll.x) * layerScales[l];
-				dRect.top = (mapSeg[i]->location.y - scroll.y) * layerScales[l];
+				dRect.left = (mapSeg[i]->position.x - scroll.x) * layerScales[l];
+				dRect.top = (mapSeg[i]->position.y - scroll.y) * layerScales[l];
 				dRect.width = (float)segDef[mapSeg[i]->segmentIndex]->width;
 				dRect.height = (float)segDef[mapSeg[i]->segmentIndex]->height;
 
@@ -174,8 +206,8 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = (mapSeg[segment]->location.x - scroll.x) * layerScales[mapSeg[segment]->layer];
-	dRect.top = (mapSeg[segment]->location.y - scroll.y) * layerScales[mapSeg[segment]->layer];
+	dRect.left = (mapSeg[segment]->position.x - scroll.x) * layerScales[mapSeg[segment]->layer];
+	dRect.top = (mapSeg[segment]->position.y - scroll.y) * layerScales[mapSeg[segment]->layer];
 	dRect.width = (float)segDef[mapSeg[segment]->segmentIndex]->width * layerScales[mapSeg[segment]->layer];
 	dRect.height = (float)segDef[mapSeg[segment]->segmentIndex]->height * layerScales[mapSeg[segment]->layer];
 
@@ -213,12 +245,6 @@ void EditorScreen::LoadSegmentDefinitions()
 	}
 }
 
-void EditorScreen::AddSegment(int layer, int index)
-{
-	std::cout << "Segment Added to Map: " << index << std::endl; 
-	mapSeg.push_back(new MapSegment(layer, index));
-}
-
 int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 {
 	int hoveredSegment = -1;
@@ -228,8 +254,8 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 		if (mapSeg[i]->layer == layer)
 		{
 			sf::Rect<float> dRect(
-				((mapSeg[i]->location.x - scroll.x) * layerScales[layer]),
-				((mapSeg[i]->location.y - scroll.y) * layerScales[layer]),
+				((mapSeg[i]->position.x - scroll.x) * layerScales[layer]),
+				((mapSeg[i]->position.y - scroll.y) * layerScales[layer]),
 				(segDef[mapSeg[i]->segmentIndex]->width * layerScales[layer]),
 				(segDef[mapSeg[i]->segmentIndex]->height * layerScales[layer]));
 
@@ -253,4 +279,11 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 	}
 
 	return hoveredSegment;
+}
+
+std::string EditorScreen::Convert (float number)
+{
+	std::ostringstream buff;
+	buff<<number;
+	return buff.str();
 }

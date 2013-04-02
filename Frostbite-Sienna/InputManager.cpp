@@ -16,13 +16,6 @@ void InputManager::Update(sf::RenderWindow &Window, sf::Event event)
 	this->event = event;
 }
 
-bool InputManager::MouseButtonPressed(sf::Mouse::Button button)
-{
-	if (event.MouseButtonPressed == button)
-		return true;
-	return false;
-}
-
 bool InputManager::KeyPressed(sf::Keyboard::Key key)
 {
 	if(event.key.code == key && event.type == sf::Event::KeyPressed)
@@ -71,5 +64,26 @@ bool InputManager::KeyDown(sf::RenderWindow &Window, std::vector<sf::Keyboard::K
 		if (sf::Keyboard::isKeyPressed(keys[i]))
 			return true;
 	}
+	return false;
+}
+
+bool InputManager::MouseButtonPressed(sf::Mouse::Button button)
+{
+	if (event.mouseButton.button == button && event.type == sf::Event::MouseButtonPressed)
+		return true;
+	return false;
+}
+
+bool InputManager::MouseWheelMovedUp()
+{
+	if (event.type == sf::Event::MouseWheelMoved && event.mouseWheel.delta > 0)
+		return true;
+	return false;
+}
+
+bool InputManager::MouseWheelMovedDown()
+{
+	if (event.type == sf::Event::MouseWheelMoved && event.mouseWheel.delta < 0)
+		return true;
 	return false;
 }

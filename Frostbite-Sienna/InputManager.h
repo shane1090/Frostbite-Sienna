@@ -15,6 +15,8 @@ public:
 	bool KeyDown(sf::RenderWindow &Window, sf::Keyboard::Key key);
 	bool KeyDown(sf::RenderWindow &Window, std::vector<sf::Keyboard::Key> keys);
 	bool MouseButtonPressed(sf::Mouse::Button button);
+	bool MouseWheelMovedUp();
+	bool MouseWheelMovedDown();
 
 	sf::Vector2<int> mousePos, prevMousePos;
 

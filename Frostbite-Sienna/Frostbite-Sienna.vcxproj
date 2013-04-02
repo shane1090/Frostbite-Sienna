@@ -87,7 +87,6 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameScreen.cpp" />
-    <ClCompile Include="Map.cpp" />
     <ClCompile Include="MapSegment.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="SegmentDefinition.cpp" />
@@ -100,7 +99,6 @@
     <ClInclude Include="EditorScreen.h" />
     <ClInclude Include="GameScreen.h" />
     <ClInclude Include="InputManager.h" />
-    <ClInclude Include="Map.h" />
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="SegmentDefinition.h" />
