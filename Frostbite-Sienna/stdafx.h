@@ -2,6 +2,8 @@
 #pragma once
 
 #include <stdio.h>
+#include <Windows.h>
+#include <TCHAR.H>
 
 // Include SFML headers
 #include <SFML\System.hpp>

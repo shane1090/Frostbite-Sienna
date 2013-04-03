@@ -121,6 +121,16 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	}
 
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+	{
+		SaveMap();
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::O))
+	{
+		LoadMap();
+	}
+
+
 	segmentPanel->Update(curLayer, input, scroll);
 
 	input.prevMousePos = input.mousePos;
@@ -279,6 +289,86 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 	}
 
 	return hoveredSegment;
+}
+
+void EditorScreen::SaveMap()
+{
+	OPENFILENAME ofn;
+
+    TCHAR szFileName[MAX_PATH];
+	szFileName[0] = '\0';
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn); 
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = "XML Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "xml";
+    GetSaveFileName(&ofn);
+
+	// XML file creation
+	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
+	tinyxml2::XMLDeclaration* xdmap = doc->NewDeclaration();
+	doc->InsertEndChild(xdmap);
+	tinyxml2::XMLElement* xemap = doc->NewElement( "map" );
+	tinyxml2::XMLNode* xnmap = doc->InsertEndChild(xemap);
+
+	for (int i = 0; i < mapSeg.size(); i++)
+	{
+		tinyxml2::XMLElement* segment = doc->NewElement( "segment" );
+		segment->SetAttribute( "id", mapSeg[i]->segmentIndex );
+		segment->SetAttribute( "x", mapSeg[i]->position.x );
+		segment->SetAttribute( "y", mapSeg[i]->position.y );
+		segment->SetAttribute( "layer", mapSeg[i]->layer );
+		segment->SetAttribute( "physics", mapSeg[i]->physicsObject );
+		segment->SetAttribute( "weight", mapSeg[i]->physicsWeight );
+		segment->SetAttribute( "rotation", mapSeg[i]->rotation );
+		segment->SetAttribute( "scalex", mapSeg[i]->scaleX );
+		segment->SetAttribute( "scaley", mapSeg[i]->scaleY );
+
+		xemap->InsertEndChild(segment);
+	}
+
+	doc->SaveFile(szFileName);
+}
+
+void EditorScreen::LoadMap()
+{
+	OPENFILENAME ofn;
+
+    TCHAR szFileName[MAX_PATH];
+	szFileName[0] = '\0';
+
+    ZeroMemory(&ofn, sizeof(ofn));
+    ofn.lStructSize = sizeof(ofn); 
+    ofn.hwndOwner = NULL;
+    ofn.lpstrFilter = "XML Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0";
+    ofn.lpstrFile = szFileName;
+    ofn.nMaxFile = MAX_PATH;
+    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
+    ofn.lpstrDefExt = "xml";
+    GetOpenFileName(&ofn);
+
+	tinyxml2::XMLDocument doc;
+	doc.LoadFile(szFileName);
+
+	tinyxml2::XMLElement* root = doc.FirstChildElement( "map" );
+	for (tinyxml2::XMLElement* e = root->FirstChildElement( "segment" ); e; e = e->NextSiblingElement() )
+	{
+		// Todo add validation routines to stop buggy XML files being imported
+
+		int layer = std::atoi(e->Attribute("layer"));
+		int segmentIndex = std::atoi(e->Attribute("id"));
+		int locX = std::atoi(e->Attribute("x"));
+		int locY = std::atoi(e->Attribute("y"));
+		float rotation = std::atof(e->Attribute("rotation"));
+
+		sf::Vector2<float> position(locX, locY);
+
+		mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
+	}
 }
 
 std::string EditorScreen::Convert (float number)

@@ -3,7 +3,7 @@
 class MapSegment
 {
 public:
-	MapSegment(int _layer, int _index, sf::Vector2<float> position);
+	MapSegment(int _layer, int _index, sf::Vector2<float> position, float rotation);
 	sf::Vector2<float> position;
 	int segmentIndex;
 	bool physicsObject;

@@ -19,6 +19,8 @@ public:
 	void DrawMap(sf::RenderWindow &Window);
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
 	std::string Convert(float number);
+	void SaveMap();
+	void LoadMap();
 
 private:
 	void LoadSegmentDefinitions();
