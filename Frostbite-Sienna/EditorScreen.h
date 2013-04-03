@@ -18,12 +18,16 @@ public:
 	void Draw(sf::RenderWindow &window);
 	void DrawMap(sf::RenderWindow &Window);
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
+	void DrawToolBar(sf::RenderWindow &Window);
+	bool DrawButton(sf::RenderWindow &Window, int x, int y, int index);
 	std::string Convert(float number);
 	void SaveMap();
 	void LoadMap();
 
 private:
 	void LoadSegmentDefinitions();
+	void ResetMap();
+
 	int GetHoveredSegement(sf::Vector2<int> mousePos, int layer);
 
 	sf::Font font;
@@ -47,5 +51,7 @@ private:
 	// Text elements
 	sf::Text scrollPosText;
 	sf::Text curLayerText;
+
+	sf::Texture toolbarIconsTex;
 
 };

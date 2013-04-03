@@ -18,6 +18,9 @@ void EditorScreen::LoadContent()
 	if (!font.loadFromFile("Assets/Fonts/arial.ttf"))
 		std::cout << "Could not find the specified font" << std::endl;
 
+	if (!toolbarIconsTex.loadFromFile("Assets/GUI/editor-icons.png"))
+		std::cout << "Could not load toolbar icons" << std::endl;
+
 	LoadSegmentDefinitions();
 
 	drawingMode = SEGMENT_SELECTION;
@@ -93,6 +96,16 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 
 				mapSeg[mouseSelectedSegment]->rotation = angle * (180.0f/M_PI);
 			}
+
+			// Allow scaling of segments
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				mapSeg[mouseSelectedSegment]->scaleX = ((input.mousePos.x - mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
+				mapSeg[mouseSelectedSegment]->scaleY = ((input.mousePos.y - mapSeg[mouseSelectedSegment]->position.y) + scroll.y);
+
+				std::cout << "Scale X: " << mapSeg[mouseSelectedSegment]->scaleX << std::endl;
+				std::cout << "Scale Y: " << mapSeg[mouseSelectedSegment]->scaleY << std::endl;
+			}
 		}
 
 		if (input.KeyPressed(sf::Keyboard::L))
@@ -120,16 +133,6 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 	{
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	}
-
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
-	{
-		SaveMap();
-	}
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::O))
-	{
-		LoadMap();
-	}
-
 
 	segmentPanel->Update(curLayer, input, scroll);
 
@@ -184,6 +187,17 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 	scrollPosText.setFont(font);
 	scrollPosText.setCharacterSize(14);
 	Window.draw(scrollPosText);
+
+	DrawToolBar(Window);
+
+	if (DrawButton(Window, 65 , 5 , 2))
+		SaveMap();
+
+	if (DrawButton(Window, 35 , 5 , 1))
+		LoadMap();
+
+	if (DrawButton(Window, 5 , 5 , 0))
+		ResetMap();
 }
 
 void EditorScreen::DrawMap(sf::RenderWindow &Window)
@@ -234,6 +248,39 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 	segmentShape.setOutlineColor(color);
 	segmentShape.setOutlineThickness(1);
 	Window.draw(segmentShape);
+}
+
+void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
+{
+	sf::RectangleShape segmentShape;
+	segmentShape.setPosition(0, 0);
+	sf::Vector2<float> segmentSize(1280, 40);
+	segmentShape.setSize(segmentSize);
+	segmentShape.setFillColor(sf::Color(0,0,0,180));
+	Window.draw(segmentShape);
+}
+
+bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
+{
+	bool r = false;
+
+	sf::Rect<int> sRect = sf::Rect<int>(30 * (index % 4),0,30,30);
+	sf::Rect<int> dRect = sf::Rect<int>(x, y, 30, 30);
+
+	if (dRect.contains(input.mousePos.x, input.mousePos.y))
+	{
+		sRect.top = 30;
+		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+			r = true;
+	}
+
+	sf::Sprite segSprite;
+	segSprite.setTexture(toolbarIconsTex);
+	segSprite.setTextureRect(sRect);
+	segSprite.setPosition((float)dRect.left, (float)dRect.top);
+	Window.draw(segSprite, sf::RenderStates::Default);
+
+	return r;
 }
 
 void EditorScreen::LoadSegmentDefinitions()
@@ -306,7 +353,7 @@ void EditorScreen::SaveMap()
     ofn.nMaxFile = MAX_PATH;
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
     ofn.lpstrDefExt = "xml";
-    GetSaveFileName(&ofn);
+	if (!GetSaveFileName(&ofn)) return;
 
 	// XML file creation
 	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
@@ -336,6 +383,9 @@ void EditorScreen::SaveMap()
 
 void EditorScreen::LoadMap()
 {
+	// Reset current Map information
+	ResetMap();
+
 	OPENFILENAME ofn;
 
     TCHAR szFileName[MAX_PATH];
@@ -349,7 +399,7 @@ void EditorScreen::LoadMap()
     ofn.nMaxFile = MAX_PATH;
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
     ofn.lpstrDefExt = "xml";
-    GetOpenFileName(&ofn);
+	if (!GetOpenFileName(&ofn)) return;
 
 	tinyxml2::XMLDocument doc;
 	doc.LoadFile(szFileName);
@@ -369,6 +419,17 @@ void EditorScreen::LoadMap()
 
 		mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
 	}
+}
+
+void EditorScreen::ResetMap()
+{
+	// Empty mapSeg of all items
+	mapSeg.clear();
+	mouseDragSegment = -1;
+	mouseHoverSegment = -1;
+	mouseSelectedSegment = -1;
+	scroll = sf::Vector2<float>(-640.0f, -360.0f);
+	curLayer = 1;
 }
 
 std::string EditorScreen::Convert (float number)

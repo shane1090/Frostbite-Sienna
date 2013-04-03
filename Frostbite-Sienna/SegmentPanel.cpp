@@ -6,7 +6,7 @@ SegmentPanel::SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<
 	this->segDef = segDef;
 	this->scrollRow = 0;
 	this->offset = 0;
-	this->maxSegments = 55;
+	this->maxSegments = 50;
 }
 
 
@@ -27,8 +27,8 @@ void SegmentPanel::Update(int curLayer, InputManager &input, sf::Vector2<float> 
 	for (int i = 0; i < segDef.size(); i++)
 	{
 		if (i >= (offset * 5) && t < maxSegments) {
-			dRect.left = (985) + (55 * curCol);
-			dRect.top = 30 + (curRow * 60);
+			dRect.left = (1005) + (55 * curCol);
+			dRect.top = 80 + (curRow * 60);
 			dRect.width = 45;
 			dRect.height = 45;
 
@@ -51,8 +51,8 @@ void SegmentPanel::Update(int curLayer, InputManager &input, sf::Vector2<float> 
 		}
 	}
 
-	if (input.mousePos.x > 975 && input.mousePos.y > 20 &&
-		input.mousePos.x < 1260 && input.mousePos.y < 700)
+	if (input.mousePos.x > 995 && input.mousePos.y > 60 &&
+		input.mousePos.x < 1280 && input.mousePos.y < 700)
 	{
 		if (input.MouseWheelMovedDown() && ((offset * 5) + 55 < segDef.size()))
 		{
@@ -67,10 +67,10 @@ void SegmentPanel::Update(int curLayer, InputManager &input, sf::Vector2<float> 
 void SegmentPanel::Draw(InputManager &input, sf::RenderWindow &Window)
 {
 	sf::RectangleShape segmentShape;
-	segmentShape.setPosition(975, 20);
-	sf::Vector2<float> segmentSize(285, 680);
+	segmentShape.setPosition(995, 60);
+	sf::Vector2<float> segmentSize(285, 640);
 	segmentShape.setSize(segmentSize);
-	segmentShape.setFillColor(sf::Color(255,255,255,200));
+	segmentShape.setFillColor(sf::Color(0,0,0,180));
 	Window.draw(segmentShape);
 
 	sf::Rect<int> dRect;
@@ -82,10 +82,30 @@ void SegmentPanel::Draw(InputManager &input, sf::RenderWindow &Window)
 	for (int i = 0; i < segDef.size(); i++)
 	{
 		if (i >= (offset * 5) && t < maxSegments) {
-			dRect.left = (985) + (55 * curCol);
-			dRect.top = 30 + (curRow * 60);
-			dRect.width = 45;
-			dRect.height = 45;
+			dRect.left = (1005) + (55 * curCol);
+			dRect.top = 80 + (curRow * 60);
+			dRect.width = segDef[i]->width;
+			dRect.height = segDef[i]->height;
+
+			if (dRect.width > 45)
+			{
+				float ratio = 45.0f / (float)dRect.width;
+				dRect.width = 45;
+				dRect.height = dRect.height * ratio;
+			}
+
+			if (dRect.height > 45)
+			{
+				float ratio = 45.0f / (float)dRect.height;
+				dRect.width = dRect.width * ratio;
+				dRect.height = 45;
+			}
+
+			if (dRect.height < 45)
+				dRect.top = dRect.top + (45 - dRect.height) / 2;
+
+			if (dRect.width < 45)
+				dRect.left = dRect.left + (45 - dRect.width) / 2;
 
 			// Get sprite reference
 			sf::Sprite segSprite;
