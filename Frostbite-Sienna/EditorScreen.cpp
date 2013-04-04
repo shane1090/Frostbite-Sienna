@@ -340,45 +340,72 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 
 void EditorScreen::SaveMap()
 {
-	OPENFILENAME ofn;
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+        COINIT_DISABLE_OLE1DDE);
+	
+    if (SUCCEEDED(hr))
+    {
+		IFileSaveDialog *pFileSave = NULL;
 
-    TCHAR szFileName[MAX_PATH];
-	szFileName[0] = '\0';
+		HRESULT hr = CoCreateInstance(__uuidof(FileSaveDialog), NULL, 
+        CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileSave));
 
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn); 
-    ofn.hwndOwner = NULL;
-    ofn.lpstrFilter = "XML Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0";
-    ofn.lpstrFile = szFileName;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-    ofn.lpstrDefExt = "xml";
-	if (!GetSaveFileName(&ofn)) return;
+		if (SUCCEEDED(hr))
+		{
+			hr = pFileSave->Show(NULL);
 
-	// XML file creation
-	tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
-	tinyxml2::XMLDeclaration* xdmap = doc->NewDeclaration();
-	doc->InsertEndChild(xdmap);
-	tinyxml2::XMLElement* xemap = doc->NewElement( "map" );
-	tinyxml2::XMLNode* xnmap = doc->InsertEndChild(xemap);
+			if (SUCCEEDED(hr))
+			{
+				IShellItem *pItem;
+				hr = pFileSave->GetResult(&pItem);
 
-	for (int i = 0; i < mapSeg.size(); i++)
-	{
-		tinyxml2::XMLElement* segment = doc->NewElement( "segment" );
-		segment->SetAttribute( "id", mapSeg[i]->segmentIndex );
-		segment->SetAttribute( "x", mapSeg[i]->position.x );
-		segment->SetAttribute( "y", mapSeg[i]->position.y );
-		segment->SetAttribute( "layer", mapSeg[i]->layer );
-		segment->SetAttribute( "physics", mapSeg[i]->physicsObject );
-		segment->SetAttribute( "weight", mapSeg[i]->physicsWeight );
-		segment->SetAttribute( "rotation", mapSeg[i]->rotation );
-		segment->SetAttribute( "scalex", mapSeg[i]->scaleX );
-		segment->SetAttribute( "scaley", mapSeg[i]->scaleY );
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 
-		xemap->InsertEndChild(segment);
+					// Display the file name to the user.
+					if (SUCCEEDED(hr))
+					{
+						std::string filePath = utf8_encode(pszFilePath);
+						char *a=new char[filePath.size()+1];
+						a[filePath.size()]=0;
+						memcpy(a,filePath.c_str(),filePath.size());
+
+						// XML file creation
+						tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
+						tinyxml2::XMLDeclaration* xdmap = doc->NewDeclaration();
+						doc->InsertEndChild(xdmap);
+						tinyxml2::XMLElement* xemap = doc->NewElement( "map" );
+						tinyxml2::XMLNode* xnmap = doc->InsertEndChild(xemap);
+
+						for (int i = 0; i < mapSeg.size(); i++)
+						{
+							tinyxml2::XMLElement* segment = doc->NewElement( "segment" );
+							segment->SetAttribute( "id", mapSeg[i]->segmentIndex );
+							segment->SetAttribute( "x", mapSeg[i]->position.x );
+							segment->SetAttribute( "y", mapSeg[i]->position.y );
+							segment->SetAttribute( "layer", mapSeg[i]->layer );
+							segment->SetAttribute( "physics", mapSeg[i]->physicsObject );
+							segment->SetAttribute( "weight", mapSeg[i]->physicsWeight );
+							segment->SetAttribute( "rotation", mapSeg[i]->rotation );
+							segment->SetAttribute( "scalex", mapSeg[i]->scaleX );
+							segment->SetAttribute( "scaley", mapSeg[i]->scaleY );
+
+							xemap->InsertEndChild(segment);
+						}
+
+						doc->SaveFile(a);
+
+						CoTaskMemFree(pszFilePath);
+					}
+					pItem->Release();
+				}
+			}
+			pFileSave->Release();
+		}
+		CoUninitialize();
 	}
-
-	doc->SaveFile(szFileName);
 }
 
 void EditorScreen::LoadMap()
@@ -386,38 +413,65 @@ void EditorScreen::LoadMap()
 	// Reset current Map information
 	ResetMap();
 
-	OPENFILENAME ofn;
+    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+        COINIT_DISABLE_OLE1DDE);
+	
+    if (SUCCEEDED(hr))
+    {
+		IFileOpenDialog *pFileOpen = NULL;
 
-    TCHAR szFileName[MAX_PATH];
-	szFileName[0] = '\0';
+		HRESULT hr = CoCreateInstance(__uuidof(FileOpenDialog), NULL, 
+        CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileOpen));
 
-    ZeroMemory(&ofn, sizeof(ofn));
-    ofn.lStructSize = sizeof(ofn); 
-    ofn.hwndOwner = NULL;
-    ofn.lpstrFilter = "XML Files (*.xml)\0*.xml\0All Files (*.*)\0*.*\0";
-    ofn.lpstrFile = szFileName;
-    ofn.nMaxFile = MAX_PATH;
-    ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-    ofn.lpstrDefExt = "xml";
-	if (!GetOpenFileName(&ofn)) return;
+		if (SUCCEEDED(hr))
+		{
+			hr = pFileOpen->Show(NULL);
 
-	tinyxml2::XMLDocument doc;
-	doc.LoadFile(szFileName);
+			if (SUCCEEDED(hr))
+			{
+				IShellItem *pItem;
+				hr = pFileOpen->GetResult(&pItem);
 
-	tinyxml2::XMLElement* root = doc.FirstChildElement( "map" );
-	for (tinyxml2::XMLElement* e = root->FirstChildElement( "segment" ); e; e = e->NextSiblingElement() )
-	{
-		// Todo add validation routines to stop buggy XML files being imported
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
 
-		int layer = std::atoi(e->Attribute("layer"));
-		int segmentIndex = std::atoi(e->Attribute("id"));
-		int locX = std::atoi(e->Attribute("x"));
-		int locY = std::atoi(e->Attribute("y"));
-		float rotation = std::atof(e->Attribute("rotation"));
+					// Display the file name to the user.
+					if (SUCCEEDED(hr))
+					{
+						std::string filePath = utf8_encode(pszFilePath);
+						char *a=new char[filePath.size()+1];
+						a[filePath.size()]=0;
+						memcpy(a,filePath.c_str(),filePath.size());
 
-		sf::Vector2<float> position(locX, locY);
+						tinyxml2::XMLDocument doc;
+						doc.LoadFile(a);
 
-		mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
+						tinyxml2::XMLElement* root = doc.FirstChildElement( "map" );
+						for (tinyxml2::XMLElement* e = root->FirstChildElement( "segment" ); e; e = e->NextSiblingElement() )
+						{
+							// Todo add validation routines to stop buggy XML files being imported
+
+							int layer = std::atoi(e->Attribute("layer"));
+							int segmentIndex = std::atoi(e->Attribute("id"));
+							int locX = std::atoi(e->Attribute("x"));
+							int locY = std::atoi(e->Attribute("y"));
+							float rotation = std::atof(e->Attribute("rotation"));
+
+							sf::Vector2<float> position(locX, locY);
+
+							mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
+						}
+
+						CoTaskMemFree(pszFilePath);
+					}
+					pItem->Release();
+				}
+			}
+			pFileOpen->Release();
+		}
+		CoUninitialize();
 	}
 }
 
@@ -437,4 +491,13 @@ std::string EditorScreen::Convert (float number)
 	std::ostringstream buff;
 	buff<<number;
 	return buff.str();
+}
+
+// Convert a wide Unicode string to an UTF8 string
+std::string EditorScreen::utf8_encode(const std::wstring &wstr)
+{
+    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
+    std::string strTo( size_needed, 0 );
+    WideCharToMultiByte                  (CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
+    return strTo;
 }

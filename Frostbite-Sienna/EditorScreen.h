@@ -5,6 +5,7 @@
 #include "SegmentDefinition.h"
 #include "MapSegment.h"
 #include "SegmentPanel.h"
+#include "shobjidl.h"
 
 class EditorScreen  : public GameScreen
 {
@@ -27,6 +28,7 @@ public:
 private:
 	void LoadSegmentDefinitions();
 	void ResetMap();
+	std::string utf8_encode(const std::wstring &wstr);
 
 	int GetHoveredSegement(sf::Vector2<int> mousePos, int layer);
 
