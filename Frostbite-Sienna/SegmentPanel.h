@@ -10,8 +10,8 @@ class SegmentPanel
 public:
 	SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<MapSegment*> &mapSeg);
 	~SegmentPanel(void);
-	void Draw(InputManager &input, sf::RenderWindow &Window);
-	void Update(int curLayer, InputManager &input, sf::Vector2<float> scroll);
+	void Draw(int curLayer, sf::Vector2<float> scroll, InputManager &input, sf::RenderWindow &Window);
+	void Update(InputManager &input);
 	void AddSegment(int layer, int index, sf::Vector2<float> scroll);
 
 protected:
@@ -21,7 +21,12 @@ private:
 
 	int scrollRow;
 	int offset;
-	int maxSegments;
+
+	static const int MAX_SEGMENT_COLS = 5;
+	static const int MAX_SEGMENT_ROWS = 6;
+	static const int MAX_SEGMENT_SIZE = 45;
+	static const int SEGMENT_PADDING = 10;
+	static const int MAX_SEGMENTS = MAX_SEGMENT_COLS * MAX_SEGMENT_ROWS;
 
 };
 

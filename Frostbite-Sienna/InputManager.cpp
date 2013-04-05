@@ -14,6 +14,11 @@ InputManager::~InputManager()
 void InputManager::Update(sf::RenderWindow &Window, sf::Event event)
 {
 	this->event = event;
+
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
+		leftMouseDown = true;
+	else
+		leftMouseDown = false;
 }
 
 bool InputManager::KeyPressed(sf::Keyboard::Key key)

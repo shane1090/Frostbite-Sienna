@@ -42,46 +42,4 @@
 	<tile id="39" name="test" image="Assets\set1\set1_39.png" />
 	<tile id="40" name="test" image="Assets\set1\set1_40.png" />
 	<tile id="41" name="test" image="Assets\set1\set1_41.png" />
-	<tile id="0" name="test" image="Assets\set1\set1_00.png" />
-	<tile id="1" name="test" image="Assets\set1\set1_01.png" />
-	<tile id="2" name="test" image="Assets\set1\set1_02.png" />
-	<tile id="3" name="test" image="Assets\set1\set1_03.png" />
-	<tile id="4" name="test" image="Assets\set1\set1_04.png" />
-	<tile id="5" name="test" image="Assets\set1\set1_05.png" />
-	<tile id="6" name="test" image="Assets\set1\set1_06.png" />
-	<tile id="7" name="test" image="Assets\set1\set1_07.png" />
-	<tile id="8" name="test" image="Assets\set1\set1_08.png" />
-	<tile id="9" name="test" image="Assets\set1\set1_09.png" />
-	<tile id="10" name="test" image="Assets\set1\set1_10.png" />
-	<tile id="11" name="test" image="Assets\set1\set1_11.png" />
-	<tile id="12" name="test" image="Assets\set1\set1_12.png" />
-	<tile id="13" name="test" image="Assets\set1\set1_13.png" />
-	<tile id="14" name="test" image="Assets\set1\set1_14.png" />
-	<tile id="15" name="test" image="Assets\set1\set1_15.png" />
-	<tile id="16" name="test" image="Assets\set1\set1_16.png" />
-	<tile id="17" name="test" image="Assets\set1\set1_17.png" />
-	<tile id="18" name="test" image="Assets\set1\set1_18.png" />
-	<tile id="19" name="test" image="Assets\set1\set1_19.png" />
-	<tile id="20" name="test" image="Assets\set1\set1_20.png" />
-	<tile id="21" name="test" image="Assets\set1\set1_21.png" />
-	<tile id="22" name="test" image="Assets\set1\set1_22.png" />
-	<tile id="23" name="test" image="Assets\set1\set1_23.png" />
-	<tile id="24" name="test" image="Assets\set1\set1_24.png" />
-	<tile id="25" name="test" image="Assets\set1\set1_25.png" />
-	<tile id="26" name="test" image="Assets\set1\set1_26.png" />
-	<tile id="27" name="test" image="Assets\set1\set1_27.png" />
-	<tile id="28" name="test" image="Assets\set1\set1_28.png" />
-	<tile id="29" name="test" image="Assets\set1\set1_29.png" />
-	<tile id="30" name="test" image="Assets\set1\set1_30.png" />
-	<tile id="31" name="test" image="Assets\set1\set1_31.png" />
-	<tile id="32" name="test" image="Assets\set1\set1_32.png" />
-	<tile id="33" name="test" image="Assets\set1\set1_33.png" />
-	<tile id="34" name="test" image="Assets\set1\set1_34.png" />
-	<tile id="35" name="test" image="Assets\set1\set1_35.png" />
-	<tile id="36" name="test" image="Assets\set1\set1_36.png" />
-	<tile id="37" name="test" image="Assets\set1\set1_37.png" />
-	<tile id="38" name="test" image="Assets\set1\set1_38.png" />
-	<tile id="39" name="test" image="Assets\set1\set1_39.png" />
-	<tile id="40" name="test" image="Assets\set1\set1_40.png" />
-	<tile id="41" name="test" image="Assets\set1\set1_41.png" />
 </tileset>  

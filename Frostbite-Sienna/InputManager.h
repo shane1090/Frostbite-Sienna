@@ -20,6 +20,8 @@ public:
 
 	sf::Vector2<int> mousePos, prevMousePos;
 
+	bool leftMouseDown;
+
 protected:
 private:
 	sf::Event event;

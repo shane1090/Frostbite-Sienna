@@ -51,9 +51,16 @@ private:
 	SegmentPanel* segmentPanel;
 
 	// Text elements
-	sf::Text scrollPosText;
-	sf::Text curLayerText;
+	sf::Text scrollPosText, curLayerText, curZoomLevelText;
 
 	sf::Texture toolbarIconsTex;
 
+	std::string curFile;
+
+	float zoomScale;
+};
+
+const COMDLG_FILTERSPEC c_rgSaveTypes[] =
+{
+    {L"Map Editor XML (*.xml)",       L"*.xml"}
 };

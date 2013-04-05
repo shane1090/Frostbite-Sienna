@@ -6,6 +6,7 @@ EditorScreen::EditorScreen(void)
 	curLayer = 1;
 	mouseDragSegment = -1;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
+	zoomScale = 1.0f;
 }
 
 EditorScreen::~EditorScreen(void)
@@ -73,8 +74,11 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 
 		if (leftMouseDown && prevLeftMouseDown == false)
 		{
-			if (mouseHoverSegment != -1)
+			if (mouseHoverSegment != -1) {
 				mouseSelectedSegment = mouseHoverSegment;
+			} else {
+				mouseSelectedSegment = -1;
+			}
 		}
 
 		if (mouseSelectedSegment != -1)
@@ -108,15 +112,6 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 			}
 		}
 
-		if (input.KeyPressed(sf::Keyboard::L))
-		{
-			curLayer = (curLayer + 1) % 3;
-			mouseSelectedSegment = -1;
-			mouseHoverSegment = -1;
-			mouseDragSegment = -1;
-			std::cout << "Layer changed to: " << curLayer << std::endl;
-		}
-
 		break;
 	case LEDGES:
 
@@ -134,7 +129,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	}
 
-	segmentPanel->Update(curLayer, input, scroll);
+	segmentPanel->Update(input);
 
 	input.prevMousePos = input.mousePos;
 	prevLeftMouseDown = leftMouseDown;
@@ -153,7 +148,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 		if (mouseSelectedSegment > -1)
 			DrawSelectedSegment(Window, mouseSelectedSegment, sf::Color::Red);
 
-		segmentPanel->Draw(input, Window);
+		segmentPanel->Draw(curLayer, scroll, input, Window);
 		break;
 	case LEDGES:
 
@@ -174,6 +169,13 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 		break;
 	}
 
+	curZoomLevelText.setString("Zoom: " + Convert(zoomScale));
+	curZoomLevelText.setColor(sf::Color(255,255,255,255));
+	curZoomLevelText.setPosition(10, 655);
+	curZoomLevelText.setFont(font);
+	curZoomLevelText.setCharacterSize(14);
+	Window.draw(curZoomLevelText);
+
 	curLayerText.setString("Current Layer: " + layerName);
 	curLayerText.setColor(sf::Color(255,255,255,255));
 	curLayerText.setPosition(10, 675);
@@ -181,7 +183,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 	curLayerText.setCharacterSize(14);
 	Window.draw(curLayerText);
 
-	scrollPosText.setString("Position: " + Convert(scroll.x + 640.0f) + "," + Convert(scroll.y + 360.0f));
+	scrollPosText.setString("Mouse Position: " + Convert(((float)input.mousePos.x + scroll.x) / zoomScale) + "," + Convert(((float)input.mousePos.y + scroll.y) / zoomScale));
 	scrollPosText.setColor(sf::Color(255,255,255,255));
 	scrollPosText.setPosition(10, 695);
 	scrollPosText.setFont(font);
@@ -190,10 +192,36 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 
 	DrawToolBar(Window);
 
-	if (DrawButton(Window, 65 , 5 , 2))
+	if (DrawButton(Window, 180 , 5 , 5))
+	{
+		zoomScale = zoomScale + 0.05;
+		if (zoomScale > 2.0f) zoomScale = 2.0f;
+
+
+
+	}
+	
+	if (DrawButton(Window, 145 , 5 , 4))
+	{
+		zoomScale = zoomScale - 0.05;
+		if (zoomScale < 0.1f) zoomScale = 0.1f;
+
+
+	}
+
+	if (DrawButton(Window, 110 , 5 , 3))
+	{
+		curLayer = (curLayer + 1) % 3;
+		mouseSelectedSegment = -1;
+		mouseHoverSegment = -1;
+		mouseDragSegment = -1;
+		std::cout << "Layer changed to: " << curLayer << std::endl;
+	}
+
+	if (DrawButton(Window, 40 , 5 , 2))
 		SaveMap();
 
-	if (DrawButton(Window, 35 , 5 , 1))
+	if (DrawButton(Window, 75 , 5 , 1))
 		LoadMap();
 
 	if (DrawButton(Window, 5 , 5 , 0))
@@ -209,15 +237,15 @@ void EditorScreen::DrawMap(sf::RenderWindow &Window)
 			if (mapSeg[i]->layer == l)
 			{
 				sf::Rect<float> dRect;
-				dRect.left = (mapSeg[i]->position.x - scroll.x) * layerScales[l];
-				dRect.top = (mapSeg[i]->position.y - scroll.y) * layerScales[l];
+				dRect.left = (mapSeg[i]->position.x - scroll.x) * (layerScales[l] * zoomScale);
+				dRect.top = (mapSeg[i]->position.y - scroll.y) * (layerScales[l] * zoomScale);
 				dRect.width = (float)segDef[mapSeg[i]->segmentIndex]->width;
 				dRect.height = (float)segDef[mapSeg[i]->segmentIndex]->height;
 
 				sf::Sprite segSprite;
 				segSprite.setTexture(segDef[mapSeg[i]->segmentIndex]->tex);
 				segSprite.setPosition(dRect.left, dRect.top);
-				segSprite.setScale(layerScales[l], layerScales[l]);
+				segSprite.setScale((layerScales[l] * zoomScale), (layerScales[l] * zoomScale));
 				segSprite.setOrigin(segDef[mapSeg[i]->segmentIndex]->width / 2, segDef[mapSeg[i]->segmentIndex]->height / 2);
 				segSprite.setRotation(mapSeg[i]->rotation);
 				Window.draw(segSprite);
@@ -230,10 +258,10 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = (mapSeg[segment]->position.x - scroll.x) * layerScales[mapSeg[segment]->layer];
-	dRect.top = (mapSeg[segment]->position.y - scroll.y) * layerScales[mapSeg[segment]->layer];
-	dRect.width = (float)segDef[mapSeg[segment]->segmentIndex]->width * layerScales[mapSeg[segment]->layer];
-	dRect.height = (float)segDef[mapSeg[segment]->segmentIndex]->height * layerScales[mapSeg[segment]->layer];
+	dRect.left = (mapSeg[segment]->position.x - scroll.x) * (layerScales[mapSeg[segment]->layer] * zoomScale);
+	dRect.top = (mapSeg[segment]->position.y - scroll.y) * (layerScales[mapSeg[segment]->layer] * zoomScale);
+	dRect.width = (float)segDef[mapSeg[segment]->segmentIndex]->width * (layerScales[mapSeg[segment]->layer] * zoomScale);
+	dRect.height = (float)segDef[mapSeg[segment]->segmentIndex]->height * (layerScales[mapSeg[segment]->layer] * zoomScale);
 
 
 	sf::RectangleShape segmentShape;
@@ -264,12 +292,13 @@ bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
 {
 	bool r = false;
 
-	sf::Rect<int> sRect = sf::Rect<int>(30 * (index % 4),0,30,30);
+	sf::Rect<int> sRect = sf::Rect<int>(30 * (index % 6),0,30,30);
 	sf::Rect<int> dRect = sf::Rect<int>(x, y, 30, 30);
 
 	if (dRect.contains(input.mousePos.x, input.mousePos.y))
 	{
 		sRect.top = 30;
+
 		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
 			r = true;
 	}
@@ -311,10 +340,10 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 		if (mapSeg[i]->layer == layer)
 		{
 			sf::Rect<float> dRect(
-				((mapSeg[i]->position.x - scroll.x) * layerScales[layer]),
-				((mapSeg[i]->position.y - scroll.y) * layerScales[layer]),
-				(segDef[mapSeg[i]->segmentIndex]->width * layerScales[layer]),
-				(segDef[mapSeg[i]->segmentIndex]->height * layerScales[layer]));
+				((mapSeg[i]->position.x - scroll.x) * (layerScales[layer] * zoomScale)),
+				((mapSeg[i]->position.y - scroll.y) * (layerScales[layer] * zoomScale)),
+				(segDef[mapSeg[i]->segmentIndex]->width * (layerScales[layer] * zoomScale)),
+				(segDef[mapSeg[i]->segmentIndex]->height * (layerScales[layer] * zoomScale)));
 
 			float c = cos(-mapSeg[i]->rotation * M_PI / 180);
 			float s = sin(-mapSeg[i]->rotation * M_PI / 180);
@@ -352,6 +381,8 @@ void EditorScreen::SaveMap()
 
 		if (SUCCEEDED(hr))
 		{
+			hr = pFileSave->SetDefaultExtension(L"xml");
+			hr = pFileSave->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
 			hr = pFileSave->Show(NULL);
 
 			if (SUCCEEDED(hr))
@@ -410,10 +441,7 @@ void EditorScreen::SaveMap()
 
 void EditorScreen::LoadMap()
 {
-	// Reset current Map information
-	ResetMap();
-
-    HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
         COINIT_DISABLE_OLE1DDE);
 	
     if (SUCCEEDED(hr))
@@ -425,6 +453,8 @@ void EditorScreen::LoadMap()
 
 		if (SUCCEEDED(hr))
 		{
+			hr = pFileOpen->SetDefaultExtension(L"xml");
+			hr = pFileOpen->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
 			hr = pFileOpen->Show(NULL);
 
 			if (SUCCEEDED(hr))
@@ -440,6 +470,9 @@ void EditorScreen::LoadMap()
 					// Display the file name to the user.
 					if (SUCCEEDED(hr))
 					{
+						// Reset current Map information
+						ResetMap();
+
 						std::string filePath = utf8_encode(pszFilePath);
 						char *a=new char[filePath.size()+1];
 						a[filePath.size()]=0;
@@ -461,7 +494,12 @@ void EditorScreen::LoadMap()
 
 							sf::Vector2<float> position(locX, locY);
 
-							mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
+							if(segmentIndex < segDef.size()) {
+								std::cout << "Loading segment index: " << segmentIndex << std::endl;
+								mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
+							} else {
+								std::cout << "Cannot load segment index: " << segmentIndex << std::endl;
+							}
 						}
 
 						CoTaskMemFree(pszFilePath);
