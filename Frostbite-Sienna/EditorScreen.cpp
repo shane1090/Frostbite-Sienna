@@ -27,6 +27,9 @@ void EditorScreen::LoadContent()
 	drawingMode = SEGMENT_SELECTION;
 
 	segmentPanel = new SegmentPanel(segDef, mapSeg);
+	segmentPanelInfo = new SegmentInfoPanel(segDef, mapSeg);
+
+	segmentPanelInfo->LoadContent(font);
 
 	// Set parallax scrolling scales for each layer
 	layerScales.push_back(0.75f);
@@ -53,32 +56,40 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 	{
 	case SEGMENT_SELECTION:
 
-		mouseHoverSegment = GetHoveredSegement(input.mousePos, curLayer);
-		
-		if (mouseDragSegment > -1)
+		if (input.mousePos.y > 40)
 		{
-			if (!leftMouseDown)
-				mouseDragSegment = -1;
-			else
+			mouseHoverSegment = GetHoveredSegement(input.mousePos, curLayer);
+		
+		
+			if (mouseDragSegment > -1 && mouseSelectedSegment > -1)
 			{
-				sf::Vector2<float> loc = mapSeg[mouseDragSegment]->position;
-				loc.x += (input.mousePos.x - input.prevMousePos.x) / layerScales[curLayer];
-				loc.y += (input.mousePos.y - input.prevMousePos.y) / layerScales[curLayer];
-				mapSeg[mouseDragSegment]->position = loc;
+				if (!leftMouseDown)
+					mouseDragSegment = -1;
+				else
+				{
+					sf::Vector2<float> loc = mapSeg[mouseDragSegment]->position;
+					loc.x += (input.mousePos.x - input.prevMousePos.x) / layerScales[curLayer];
+					loc.y += (input.mousePos.y - input.prevMousePos.y) / layerScales[curLayer];
+					mapSeg[mouseDragSegment]->position = loc;
+				}
+			}
+
+			if (leftMouseDown && input.mousePos.x < 900 && mouseDragSegment == -1)
+				if (mouseHoverSegment != -1)
+					mouseDragSegment = mouseHoverSegment;
+
+			if (leftMouseDown && prevLeftMouseDown == false)
+			{
+				if (mouseHoverSegment != -1) {
+					mouseSelectedSegment = mouseHoverSegment;
+				} else {
+					mouseSelectedSegment = -1;
+				}
 			}
 		}
-
-		if (leftMouseDown && input.mousePos.x < 900 && mouseDragSegment == -1)
-			if (mouseHoverSegment != -1)
-				mouseDragSegment = mouseHoverSegment;
-
-		if (leftMouseDown && prevLeftMouseDown == false)
+		else
 		{
-			if (mouseHoverSegment != -1) {
-				mouseSelectedSegment = mouseHoverSegment;
-			} else {
-				mouseSelectedSegment = -1;
-			}
+			mouseHoverSegment = -1;
 		}
 
 		if (mouseSelectedSegment != -1)
@@ -145,9 +156,13 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 			DrawSelectedSegment(Window, mouseHoverSegment, sf::Color::White);
 
 		if (mouseSelectedSegment > -1)
+		{
 			DrawSelectedSegment(Window, mouseSelectedSegment, sf::Color::Red);
+			segmentPanelInfo->Draw(Window, mouseSelectedSegment);
+		}
 
 		segmentPanel->Draw(curLayer, scroll, input, Window);
+		
 		break;
 	case LEDGES:
 
@@ -555,20 +570,4 @@ void EditorScreen::ResetMap()
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	curLayer = 1;
 	drawingMode = SEGMENT_SELECTION;
-}
-
-std::string EditorScreen::Convert (float number)
-{
-	std::ostringstream buff;
-	buff<<number;
-	return buff.str();
-}
-
-// Convert a wide Unicode string to an UTF8 string
-std::string EditorScreen::utf8_encode(const std::wstring &wstr)
-{
-    int size_needed = WideCharToMultiByte(CP_UTF8, 0, &wstr[0], (int)wstr.size(), NULL, 0, NULL, NULL);
-    std::string strTo( size_needed, 0 );
-    WideCharToMultiByte                  (CP_UTF8, 0, &wstr[0], (int)wstr.size(), &strTo[0], size_needed, NULL, NULL);
-    return strTo;
 }

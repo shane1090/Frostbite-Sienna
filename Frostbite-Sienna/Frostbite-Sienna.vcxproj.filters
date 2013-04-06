@@ -37,6 +37,12 @@
     <Filter Include="Source Files\ScreenManager">
       <UniqueIdentifier>{45f5e34c-d46a-40e8-9179-cf013db6659c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{106da1d5-823a-4624-9d73-01a58189be8b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{13f3be4b-1671-4a00-8ed1-c0eb88c91c93}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tinyxml2.cpp">
@@ -69,8 +75,14 @@
     <ClCompile Include="GameScreen.cpp">
       <Filter>Source Files\ScreenManager</Filter>
     </ClCompile>
-    <ClCompile Include="SegmentPanel.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="UI_SegmentInfoPanel.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_SegmentPanel.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="GlobalFunctions.cpp">
+      <Filter>Source Files\Misc</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -104,8 +116,14 @@
     <ClInclude Include="ScreenManager.h">
       <Filter>Header Files\ScreenManager</Filter>
     </ClInclude>
-    <ClInclude Include="SegmentPanel.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="UI_SegmentInfoPanel.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_SegmentPanel.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="GlobalFunctions.h">
+      <Filter>Header Files\Misc</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

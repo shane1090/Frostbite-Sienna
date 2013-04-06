@@ -14,6 +14,9 @@ public:
 	void Update(InputManager &input);
 	void AddSegment(int layer, int index, sf::Vector2<float> scroll);
 
+	sf::Vector2<int> panelPos;
+	sf::Vector2<float> segmentSize;
+
 protected:
 private:
 	std::vector<SegmentDefinition*> &segDef;

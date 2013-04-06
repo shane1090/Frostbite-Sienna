@@ -1,11 +1,16 @@
 #include "stdafx.h"
-#include "SegmentPanel.h"
+#include "UI_SegmentPanel.h"
 
 SegmentPanel::SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<MapSegment*> &mapSeg) : segDef(segDef), mapSeg(mapSeg)
 {
-	this->segDef = segDef;
 	this->scrollRow = 0;
 	this->offset = 0;
+
+	panelPos = sf::Vector2<int>(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
+							  SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING);
+
+	segmentSize = sf::Vector2<float>((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING + 10, 
+								   (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
 }
 
 
@@ -16,9 +21,6 @@ SegmentPanel::~SegmentPanel(void)
 
 void SegmentPanel::Update(InputManager &input)
 {
-	sf::Vector2<int> panelPos(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
-							  SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING);
-	
 	if (input.mousePos.x > panelPos.x && input.mousePos.y > panelPos.y &&
 		input.mousePos.x < 1280 && input.mousePos.y < 720)
 	{
@@ -34,13 +36,8 @@ void SegmentPanel::Update(InputManager &input)
 
 void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, InputManager &input, sf::RenderWindow &Window)
 {
-	sf::Vector2<int> panelPos(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
-							  SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING); 
-
 	sf::RectangleShape segmentShape;
-	segmentShape.setPosition(panelPos.x, panelPos.y);
-	sf::Vector2<float> segmentSize((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING + 10, 
-								   (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
+	segmentShape.setPosition(panelPos.x, panelPos.y);	
 	segmentShape.setSize(segmentSize);
 	segmentShape.setFillColor(sf::Color(0,0,0,200));
 	Window.draw(segmentShape);

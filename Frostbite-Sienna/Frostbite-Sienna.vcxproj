@@ -84,29 +84,33 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="EditorScreen.cpp" />
+    <ClCompile Include="GlobalFunctions.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameScreen.cpp" />
     <ClCompile Include="MapSegment.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="SegmentDefinition.cpp" />
-    <ClCompile Include="SegmentPanel.cpp" />
+    <ClCompile Include="UI_SegmentPanel.cpp" />
     <ClCompile Include="SplashScreen.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="TitleScreen.cpp" />
+    <ClCompile Include="UI_SegmentInfoPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="EditorScreen.h" />
     <ClInclude Include="GameScreen.h" />
+    <ClInclude Include="GlobalFunctions.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="SegmentDefinition.h" />
-    <ClInclude Include="SegmentPanel.h" />
+    <ClInclude Include="UI_SegmentPanel.h" />
     <ClInclude Include="SplashScreen.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="TitleScreen.h" />
+    <ClInclude Include="UI_SegmentInfoPanel.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -4,7 +4,8 @@
 #include "ScreenManager.h"
 #include "SegmentDefinition.h"
 #include "MapSegment.h"
-#include "SegmentPanel.h"
+#include "UI_SegmentPanel.h"
+#include "UI_SegmentInfoPanel.h"
 #include "shobjidl.h"
 
 class EditorScreen  : public GameScreen
@@ -21,14 +22,12 @@ public:
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
 	void DrawToolBar(sf::RenderWindow &Window);
 	bool DrawButton(sf::RenderWindow &Window, int x, int y, int index);
-	std::string Convert(float number);
 	void SaveMap();
 	void LoadMap();
 
 private:
 	void LoadSegmentDefinitions();
 	void ResetMap();
-	std::string utf8_encode(const std::wstring &wstr);
 
 	int GetHoveredSegement(sf::Vector2<int> mousePos, int layer);
 
@@ -49,6 +48,7 @@ private:
 	bool leftMouseDown, prevLeftMouseDown;
 
 	SegmentPanel* segmentPanel;
+	SegmentInfoPanel* segmentPanelInfo;
 
 	// Text elements
 	sf::Text scrollPosText, curLayerText, curZoomLevelText, curDrawingMode;
