@@ -92,6 +92,9 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 				mouseHoverSegment = -1;
 			}
 
+			int xM = input.mousePos.x - input.prevMousePos.x;
+			int yM = input.mousePos.y - input.prevMousePos.y;
+
 			// Allow rotation of segments
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
 			{
@@ -104,11 +107,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 			// Allow scaling of segments
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 			{
-				mapSeg[mouseSelectedSegment]->scaleX = ((input.mousePos.x - mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
-				mapSeg[mouseSelectedSegment]->scaleY = ((input.mousePos.y - mapSeg[mouseSelectedSegment]->position.y) + scroll.y);
-
-				std::cout << "Scale X: " << mapSeg[mouseSelectedSegment]->scaleX << std::endl;
-				std::cout << "Scale Y: " << mapSeg[mouseSelectedSegment]->scaleY << std::endl;
+				mapSeg[mouseSelectedSegment]->scale += sf::Vector2<float>((float)xM * 0.01f, (float)yM * 0.01f);
 			}
 		}
 
@@ -169,7 +168,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 		break;
 	}
 
-	curZoomLevelText.setString("Zoom: " + Convert(zoomScale));
+	curZoomLevelText.setString("Zoom Level: " + Convert(zoomScale));
 	curZoomLevelText.setColor(sf::Color(255,255,255,255));
 	curZoomLevelText.setPosition(10, 655);
 	curZoomLevelText.setFont(font);
@@ -190,14 +189,30 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 	scrollPosText.setCharacterSize(14);
 	Window.draw(scrollPosText);
 
+	std::string drawTypeName;
+	switch (drawingMode)
+	{
+	case SEGMENT_SELECTION:
+		drawTypeName = "Segment";
+		break;
+	case LEDGES:
+		drawTypeName = "Ledges";
+		break;
+	}
+
+	curDrawingMode.setString("Draw Mode: " + drawTypeName);
+	curDrawingMode.setColor(sf::Color(255,255,255,255));
+	curDrawingMode.setPosition(10, 635);
+	curDrawingMode.setFont(font);
+	curDrawingMode.setCharacterSize(14);
+	Window.draw(curDrawingMode);
+
 	DrawToolBar(Window);
 
 	if (DrawButton(Window, 180 , 5 , 5))
 	{
 		zoomScale = zoomScale + 0.05;
 		if (zoomScale > 2.0f) zoomScale = 2.0f;
-
-
 
 	}
 	
@@ -226,6 +241,19 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 
 	if (DrawButton(Window, 5 , 5 , 0))
 		ResetMap();
+
+	sf::Sprite toolbarSpacer;
+	toolbarSpacer.setTexture(toolbarIconsTex);
+	toolbarSpacer.setTextureRect(sf::Rect<int>(0, 2, 2, 30));
+	toolbarSpacer.setPosition(220, 5);
+	Window.draw(toolbarSpacer, sf::RenderStates::Default);
+
+	for ( int i = SEGMENT_SELECTION; i != DMODE_LAST; i++ )
+	{
+		if (DrawButton(Window, 232 + (i * 35) , 5 , (6 + i))) {
+			drawingMode = (drawingMode_t)i;
+		}
+	}
 }
 
 void EditorScreen::DrawMap(sf::RenderWindow &Window)
@@ -245,7 +273,7 @@ void EditorScreen::DrawMap(sf::RenderWindow &Window)
 				sf::Sprite segSprite;
 				segSprite.setTexture(segDef[mapSeg[i]->segmentIndex]->tex);
 				segSprite.setPosition(dRect.left, dRect.top);
-				segSprite.setScale((layerScales[l] * zoomScale), (layerScales[l] * zoomScale));
+				segSprite.setScale((layerScales[l] * zoomScale) * mapSeg[i]->scale.x, (layerScales[l] * zoomScale) * mapSeg[i]->scale.y);
 				segSprite.setOrigin(segDef[mapSeg[i]->segmentIndex]->width / 2, segDef[mapSeg[i]->segmentIndex]->height / 2);
 				segSprite.setRotation(mapSeg[i]->rotation);
 				Window.draw(segSprite);
@@ -260,8 +288,8 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 
 	dRect.left = (mapSeg[segment]->position.x - scroll.x) * (layerScales[mapSeg[segment]->layer] * zoomScale);
 	dRect.top = (mapSeg[segment]->position.y - scroll.y) * (layerScales[mapSeg[segment]->layer] * zoomScale);
-	dRect.width = (float)segDef[mapSeg[segment]->segmentIndex]->width * (layerScales[mapSeg[segment]->layer] * zoomScale);
-	dRect.height = (float)segDef[mapSeg[segment]->segmentIndex]->height * (layerScales[mapSeg[segment]->layer] * zoomScale);
+	dRect.width = (float)segDef[mapSeg[segment]->segmentIndex]->width * (layerScales[mapSeg[segment]->layer] * zoomScale) * mapSeg[segment]->scale.x;
+	dRect.height = (float)segDef[mapSeg[segment]->segmentIndex]->height * (layerScales[mapSeg[segment]->layer] * zoomScale) * mapSeg[segment]->scale.y;
 
 
 	sf::RectangleShape segmentShape;
@@ -292,7 +320,7 @@ bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
 {
 	bool r = false;
 
-	sf::Rect<int> sRect = sf::Rect<int>(30 * (index % 6),0,30,30);
+	sf::Rect<int> sRect = sf::Rect<int>(2 + (30 * (index % 9)),0,30,30);
 	sf::Rect<int> dRect = sf::Rect<int>(x, y, 30, 30);
 
 	if (dRect.contains(input.mousePos.x, input.mousePos.y))
@@ -302,7 +330,7 @@ bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
 		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
 			r = true;
 	}
-
+	
 	sf::Sprite segSprite;
 	segSprite.setTexture(toolbarIconsTex);
 	segSprite.setTextureRect(sRect);
@@ -342,8 +370,8 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 			sf::Rect<float> dRect(
 				((mapSeg[i]->position.x - scroll.x) * (layerScales[layer] * zoomScale)),
 				((mapSeg[i]->position.y - scroll.y) * (layerScales[layer] * zoomScale)),
-				(segDef[mapSeg[i]->segmentIndex]->width * (layerScales[layer] * zoomScale)),
-				(segDef[mapSeg[i]->segmentIndex]->height * (layerScales[layer] * zoomScale)));
+				(segDef[mapSeg[i]->segmentIndex]->width * (layerScales[layer] * zoomScale) * mapSeg[i]->scale.x),
+				(segDef[mapSeg[i]->segmentIndex]->height * (layerScales[layer] * zoomScale) * mapSeg[i]->scale.y));
 
 			float c = cos(-mapSeg[i]->rotation * M_PI / 180);
 			float s = sin(-mapSeg[i]->rotation * M_PI / 180);
@@ -420,8 +448,8 @@ void EditorScreen::SaveMap()
 							segment->SetAttribute( "physics", mapSeg[i]->physicsObject );
 							segment->SetAttribute( "weight", mapSeg[i]->physicsWeight );
 							segment->SetAttribute( "rotation", mapSeg[i]->rotation );
-							segment->SetAttribute( "scalex", mapSeg[i]->scaleX );
-							segment->SetAttribute( "scaley", mapSeg[i]->scaleY );
+							segment->SetAttribute( "scalex", mapSeg[i]->scale.x );
+							segment->SetAttribute( "scaley", mapSeg[i]->scale.y );
 
 							xemap->InsertEndChild(segment);
 						}
@@ -491,12 +519,15 @@ void EditorScreen::LoadMap()
 							int locX = std::atoi(e->Attribute("x"));
 							int locY = std::atoi(e->Attribute("y"));
 							float rotation = std::atof(e->Attribute("rotation"));
+							float scaleX = std::atof(e->Attribute("scalex"));
+							float scaleY = std::atof(e->Attribute("scaley"));
 
 							sf::Vector2<float> position(locX, locY);
+							sf::Vector2<float> scale(scaleX, scaleY);
 
 							if(segmentIndex < segDef.size()) {
 								std::cout << "Loading segment index: " << segmentIndex << std::endl;
-								mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation));
+								mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation, scale));
 							} else {
 								std::cout << "Cannot load segment index: " << segmentIndex << std::endl;
 							}
@@ -520,8 +551,10 @@ void EditorScreen::ResetMap()
 	mouseDragSegment = -1;
 	mouseHoverSegment = -1;
 	mouseSelectedSegment = -1;
+	zoomScale = 1.0f;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	curLayer = 1;
+	drawingMode = SEGMENT_SELECTION;
 }
 
 std::string EditorScreen::Convert (float number)

@@ -38,7 +38,7 @@ private:
 	std::vector<MapSegment*> mapSeg;
 	std::vector<float> layerScales;
 
-	enum drawingMode_t { SEGMENT_SELECTION, LEDGES };
+	enum drawingMode_t { SEGMENT_SELECTION, LEDGES, DMODE_LAST };
 	drawingMode_t drawingMode;
 
 	sf::Vector2<float> scroll;
@@ -51,7 +51,7 @@ private:
 	SegmentPanel* segmentPanel;
 
 	// Text elements
-	sf::Text scrollPosText, curLayerText, curZoomLevelText;
+	sf::Text scrollPosText, curLayerText, curZoomLevelText, curDrawingMode;
 
 	sf::Texture toolbarIconsTex;
 

@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "MapSegment.h"
 
-MapSegment::MapSegment(int _layer, int _index, sf::Vector2<float> position, float rotation)
+MapSegment::MapSegment(int _layer, int _index, sf::Vector2<float> position, float rotation, sf::Vector2<float> scale)
 {
 	this->position = position;
 	segmentIndex = _index;
@@ -9,6 +9,5 @@ MapSegment::MapSegment(int _layer, int _index, sf::Vector2<float> position, floa
 	physicsObject = false;
 	physicsWeight = 0;
 	this->rotation = rotation;
-	scaleX = 0;
-	scaleY = 0;
+	this->scale = scale;
 }

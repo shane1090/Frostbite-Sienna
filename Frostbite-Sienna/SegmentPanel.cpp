@@ -130,5 +130,5 @@ void SegmentPanel::AddSegment(int layer, int index, sf::Vector2<float> scroll)
 {
 	sf::Vector2<float> position = scroll + sf::Vector2<float>(640.0f, 360.0f);
 	std::cout << "Segment Added to Map: " << index << std::endl; 
-	mapSeg.push_back(new MapSegment(layer, index, position, 0));
+	mapSeg.push_back(new MapSegment(layer, index, position, 0, sf::Vector2<float>(1.0f,1.0f)));
 }

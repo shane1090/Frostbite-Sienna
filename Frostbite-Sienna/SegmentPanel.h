@@ -22,13 +22,13 @@ private:
 	int scrollRow;
 	int offset;
 
-	static const int MAX_SEGMENT_COLS = 5;
-	static const int MAX_SEGMENT_ROWS = 6;
-	static const int MAX_SEGMENT_SIZE = 45;
-	static const int SEGMENT_PADDING = 10;
-	static const int MAX_SEGMENTS = MAX_SEGMENT_COLS * MAX_SEGMENT_ROWS;
-
 };
+
+const int MAX_SEGMENT_COLS = 5;
+const int MAX_SEGMENT_ROWS = 5;
+const int MAX_SEGMENT_SIZE = 45;
+const int SEGMENT_PADDING = 10;
+const int MAX_SEGMENTS = MAX_SEGMENT_COLS * MAX_SEGMENT_ROWS;
 
 #endif // SEGMENTPANEL_H
 
