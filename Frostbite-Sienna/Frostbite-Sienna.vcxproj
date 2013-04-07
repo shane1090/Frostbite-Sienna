@@ -86,6 +86,7 @@
     <ClCompile Include="EditorScreen.cpp" />
     <ClCompile Include="GlobalFunctions.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="Ledge.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameScreen.cpp" />
     <ClCompile Include="MapSegment.cpp" />
@@ -102,6 +103,7 @@
     <ClInclude Include="GameScreen.h" />
     <ClInclude Include="GlobalFunctions.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="Ledge.h" />
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="SegmentDefinition.h" />

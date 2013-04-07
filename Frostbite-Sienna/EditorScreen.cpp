@@ -4,6 +4,7 @@
 EditorScreen::EditorScreen(void)
 {
 	curLayer = 1;
+	curLedge = 0;
 	mouseDragSegment = -1;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	zoomScale = 1.0f;
@@ -125,6 +126,23 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		break;
 	case LEDGES:
 
+		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+		{
+			if (input.mousePos.x > 0 && input.mousePos.x < SCREEN_WIDTH &&
+				input.mousePos.y > 40 && input.mousePos.y << 720)
+			{
+				if (ledges.size() == 0)
+					ledges.push_back(new Ledge);
+
+				sf::Vector2<float> nodePos = sf::Vector2<float>(input.mousePos.x, input.mousePos.y) + scroll;
+
+				ledges[curLedge]->nodes.push_back(nodePos);
+				ledges[curLedge]->totalNodes++;
+
+				std::cout << "Node added to ledge " << curLedge << ": " << nodePos.x << ", " << nodePos.y << std::endl;
+			}
+		}
+
 		break;
 	}
 
@@ -165,7 +183,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 		
 		break;
 	case LEDGES:
-
+		DrawLedges(Window);
 		break;
 	}
 
@@ -292,6 +310,57 @@ void EditorScreen::DrawMap(sf::RenderWindow &Window)
 				segSprite.setOrigin(segDef[mapSeg[i]->segmentIndex]->width / 2, segDef[mapSeg[i]->segmentIndex]->height / 2);
 				segSprite.setRotation(mapSeg[i]->rotation);
 				Window.draw(segSprite);
+			}
+		}
+	}
+}
+
+void EditorScreen::DrawLedges(sf::RenderWindow &Window)
+{
+	sf::Rect<int> rect;
+	sf::Color tColor;
+
+	for (int i = 0; i < ledges.size(); i++)
+	{
+		if (ledges[i]->totalNodes > 0)
+		{
+			for (int n = 0; n < ledges[i]->totalNodes; n++)
+			{
+				sf::Vector2<float> tVec;
+				tVec = ledges[i]->nodes[n];
+				tVec -= scroll;
+				tVec.x -= 3.0f;
+				tVec.y -= 3.0f;
+				
+				// Change colour if ledge is selected
+				if (curLedge == i)
+					tColor = sf::Color::Yellow;
+				else
+					tColor = sf::Color::White;
+
+				sf::CircleShape circle;
+				circle.setRadius(6);
+				circle.setFillColor(tColor);
+				circle.setPosition(tVec.x, tVec.y);
+				Window.draw(circle);
+
+				if (n < ledges[i]->totalNodes - 1)
+				{
+					sf::Vector2<float> nVec;
+					nVec = ledges[i]->nodes[n + 1];
+					nVec -= scroll;
+
+					float dx = nVec.x - tVec.x;
+					float dy = nVec.y - tVec.y;
+					float rot = atan2(dy, dx) * (180.0f/M_PI);
+					sf::RectangleShape line;
+					line.setSize(sf::Vector2f(std::sqrt(std::abs(dx)*std::abs(dx) + std::abs(dy)*std::abs(dy)), 2*2));
+					line.setOrigin(0, 2);
+					line.setPosition(tVec.x, tVec.y);
+					line.setRotation(rot);
+					line.setFillColor(tColor);
+					Window.draw(line);
+				}
 			}
 		}
 	}
@@ -455,18 +524,33 @@ void EditorScreen::SaveMap()
 
 						for (int i = 0; i < mapSeg.size(); i++)
 						{
-							tinyxml2::XMLElement* segment = doc->NewElement( "segment" );
-							segment->SetAttribute( "id", mapSeg[i]->segmentIndex );
-							segment->SetAttribute( "x", mapSeg[i]->position.x );
-							segment->SetAttribute( "y", mapSeg[i]->position.y );
-							segment->SetAttribute( "layer", mapSeg[i]->layer );
-							segment->SetAttribute( "physics", mapSeg[i]->physicsObject );
-							segment->SetAttribute( "weight", mapSeg[i]->physicsWeight );
-							segment->SetAttribute( "rotation", mapSeg[i]->rotation );
-							segment->SetAttribute( "scalex", mapSeg[i]->scale.x );
-							segment->SetAttribute( "scaley", mapSeg[i]->scale.y );
+							tinyxml2::XMLElement* element = doc->NewElement( "segment" );
+							element->SetAttribute( "id", mapSeg[i]->segmentIndex );
+							element->SetAttribute( "x", mapSeg[i]->position.x );
+							element->SetAttribute( "y", mapSeg[i]->position.y );
+							element->SetAttribute( "layer", mapSeg[i]->layer );
+							element->SetAttribute( "physics", mapSeg[i]->physicsObject );
+							element->SetAttribute( "weight", mapSeg[i]->physicsWeight );
+							element->SetAttribute( "rotation", mapSeg[i]->rotation );
+							element->SetAttribute( "scalex", mapSeg[i]->scale.x );
+							element->SetAttribute( "scaley", mapSeg[i]->scale.y );
 
-							xemap->InsertEndChild(segment);
+							xemap->InsertEndChild(element);
+						}
+
+						for (int i = 0; i < ledges.size(); i++)
+						{
+							xemap = doc->NewElement( "ledge" + i );
+							xemap->SetAttribute( "flag", ledges[i]->flags );
+							xnmap = doc->InsertEndChild(xemap);
+
+							for (int n = 0; n < ledges[i]->nodes.size(); n++)
+							{
+								tinyxml2::XMLElement* element = doc->NewElement( "node" );
+								element->SetAttribute( "x", ledges[i]->nodes[n].x );
+								element->SetAttribute( "y", ledges[i]->nodes[n].y );
+								xemap->InsertEndChild(element);
+							}
 						}
 
 						doc->SaveFile(a);
@@ -570,4 +654,6 @@ void EditorScreen::ResetMap()
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	curLayer = 1;
 	drawingMode = SEGMENT_SELECTION;
+	ledges.clear();
+	curLedge = 0;
 }

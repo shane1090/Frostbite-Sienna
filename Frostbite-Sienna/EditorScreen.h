@@ -4,6 +4,7 @@
 #include "ScreenManager.h"
 #include "SegmentDefinition.h"
 #include "MapSegment.h"
+#include "Ledge.h"
 #include "UI_SegmentPanel.h"
 #include "UI_SegmentInfoPanel.h"
 #include "shobjidl.h"
@@ -22,6 +23,7 @@ public:
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
 	void DrawToolBar(sf::RenderWindow &Window);
 	bool DrawButton(sf::RenderWindow &Window, int x, int y, int index);
+	void DrawLedges(sf::RenderWindow &Window);
 	void SaveMap();
 	void LoadMap();
 
@@ -35,6 +37,7 @@ private:
 
 	std::vector<SegmentDefinition*> segDef;
 	std::vector<MapSegment*> mapSeg;
+	std::vector<Ledge*> ledges;
 	std::vector<float> layerScales;
 
 	enum drawingMode_t { SEGMENT_SELECTION, LEDGES, DMODE_LAST };
@@ -44,6 +47,9 @@ private:
 
 	int curLayer;
 	int mouseDragSegment, mouseHoverSegment, mouseSelectedSegment;
+
+	int curLedge;
+	int curNode;
 
 	bool leftMouseDown, prevLeftMouseDown;
 
