@@ -74,12 +74,16 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\SFML 2.0\Snapshot\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
+      <AdditionalLibraryDirectories>C:\SFML 2.0\Build\lib\Release;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>sfml-system.lib;sfml-main.lib;sfml-graphics.lib;sfml-audio.lib;sfml-network.lib;sfml-window.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -87,6 +91,7 @@
     <ClCompile Include="GlobalFunctions.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Ledge.cpp" />
+    <ClCompile Include="UI_LedgePanel.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameScreen.cpp" />
     <ClCompile Include="MapSegment.cpp" />
@@ -104,6 +109,7 @@
     <ClInclude Include="GlobalFunctions.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Ledge.h" />
+    <ClInclude Include="UI_LedgePanel.h" />
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="SegmentDefinition.h" />

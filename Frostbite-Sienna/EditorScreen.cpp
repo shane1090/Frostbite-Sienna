@@ -6,6 +6,7 @@ EditorScreen::EditorScreen(void)
 	curLayer = 1;
 	curLedge = 0;
 	mouseDragSegment = -1;
+	mouseSelectedSegment = -1;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	zoomScale = 1.0f;
 }
@@ -28,9 +29,11 @@ void EditorScreen::LoadContent()
 	drawingMode = SEGMENT_SELECTION;
 
 	segmentPanel = new SegmentPanel(segDef, mapSeg);
-	segmentPanelInfo = new SegmentInfoPanel(segDef, mapSeg);
+	segmentInfoPanel = new SegmentInfoPanel(segDef, mapSeg);
+	segmentInfoPanel->LoadContent(font);
 
-	segmentPanelInfo->LoadContent(font);
+	ledgePanel = new LedgePanel(ledges);
+	ledgePanel->LoadContent(font);
 
 	// Set parallax scrolling scales for each layer
 	layerScales.push_back(0.75f);
@@ -123,13 +126,16 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 			}
 		}
 
+		segmentPanel->Update(input);
+
 		break;
 	case LEDGES:
 
 		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
 		{
 			if (input.mousePos.x > 0 && input.mousePos.x < SCREEN_WIDTH &&
-				input.mousePos.y > 40 && input.mousePos.y << 720)
+				input.mousePos.y > 40 && input.mousePos.y << 720 &&
+				!ledgePanel->panel.contains(input.mousePos.x, input.mousePos.y))
 			{
 				if (ledges.size() == 0)
 					ledges.push_back(new Ledge);
@@ -137,11 +143,33 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 				sf::Vector2<float> nodePos = sf::Vector2<float>(input.mousePos.x, input.mousePos.y) + scroll;
 
 				ledges[curLedge]->nodes.push_back(nodePos);
-				ledges[curLedge]->totalNodes++;
 
 				std::cout << "Node added to ledge " << curLedge << ": " << nodePos.x << ", " << nodePos.y << std::endl;
 			}
 		}
+
+		// Add new ledge
+		if (input.KeyPressed(sf::Keyboard::A))
+		{
+			ledges.push_back(new Ledge);
+			curLedge = ledges.size() - 1;
+		}
+
+		// Allow deletion of nodes in ledges
+		if (input.KeyPressed(sf::Keyboard::Delete))
+		{
+			if (ledges[curLedge]->nodes.size() > 1)
+			{
+				ledges[curLedge]->nodes.erase(ledges[curLedge]->nodes.end()-1);
+				std::cout << "Ledge " << curLedge << " node deleted" << std::endl;
+			} else {
+				ledges.erase(ledges.begin() + curLedge);
+				std::cout << "Ledge " << curLedge << " deleted" << std::endl;
+				curLedge = -1;
+			}
+		}
+
+		ledgePanel->Update(input);
 
 		break;
 	}
@@ -156,8 +184,6 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 	{
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	}
-
-	segmentPanel->Update(input);
 
 	input.prevMousePos = input.mousePos;
 	prevLeftMouseDown = leftMouseDown;
@@ -176,7 +202,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 		if (mouseSelectedSegment > -1)
 		{
 			DrawSelectedSegment(Window, mouseSelectedSegment, sf::Color::Red);
-			segmentPanelInfo->Draw(Window, mouseSelectedSegment);
+			segmentInfoPanel->Draw(Window, mouseSelectedSegment);
 		}
 
 		segmentPanel->Draw(curLayer, scroll, input, Window);
@@ -184,6 +210,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 		break;
 	case LEDGES:
 		DrawLedges(Window);
+		ledgePanel->Draw(Window, curLedge, input);
 		break;
 	}
 
@@ -322,9 +349,9 @@ void EditorScreen::DrawLedges(sf::RenderWindow &Window)
 
 	for (int i = 0; i < ledges.size(); i++)
 	{
-		if (ledges[i]->totalNodes > 0)
+		if (ledges[i]->nodes.size() > 0)
 		{
-			for (int n = 0; n < ledges[i]->totalNodes; n++)
+			for (int n = 0; n < ledges[i]->nodes.size(); n++)
 			{
 				sf::Vector2<float> tVec;
 				tVec = ledges[i]->nodes[n];
@@ -344,7 +371,7 @@ void EditorScreen::DrawLedges(sf::RenderWindow &Window)
 				circle.setPosition(tVec.x, tVec.y);
 				Window.draw(circle);
 
-				if (n < ledges[i]->totalNodes - 1)
+				if (n < ledges[i]->nodes.size() - 1)
 				{
 					sf::Vector2<float> nVec;
 					nVec = ledges[i]->nodes[n + 1];
@@ -519,6 +546,7 @@ void EditorScreen::SaveMap()
 						tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
 						tinyxml2::XMLDeclaration* xdmap = doc->NewDeclaration();
 						doc->InsertEndChild(xdmap);
+
 						tinyxml2::XMLElement* xemap = doc->NewElement( "map" );
 						tinyxml2::XMLNode* xnmap = doc->InsertEndChild(xemap);
 
@@ -538,18 +566,21 @@ void EditorScreen::SaveMap()
 							xemap->InsertEndChild(element);
 						}
 
+						tinyxml2::XMLElement* xeledges = doc->NewElement( "ledges" );
+						tinyxml2::XMLNode* xnledges = doc->InsertEndChild(xeledges);
+
 						for (int i = 0; i < ledges.size(); i++)
 						{
-							xemap = doc->NewElement( "ledge" + i );
-							xemap->SetAttribute( "flag", ledges[i]->flags );
-							xnmap = doc->InsertEndChild(xemap);
+							tinyxml2::XMLElement* xeledge = doc->NewElement( "ledge" );
+							xeledge->SetAttribute( "flag", ledges[i]->flags );
+							tinyxml2::XMLNode* xnledge = xeledges->InsertEndChild( xeledge );
 
 							for (int n = 0; n < ledges[i]->nodes.size(); n++)
 							{
 								tinyxml2::XMLElement* element = doc->NewElement( "node" );
 								element->SetAttribute( "x", ledges[i]->nodes[n].x );
 								element->SetAttribute( "y", ledges[i]->nodes[n].y );
-								xemap->InsertEndChild(element);
+								xeledge->InsertEndChild(element);
 							}
 						}
 
@@ -608,8 +639,8 @@ void EditorScreen::LoadMap()
 						tinyxml2::XMLDocument doc;
 						doc.LoadFile(a);
 
-						tinyxml2::XMLElement* root = doc.FirstChildElement( "map" );
-						for (tinyxml2::XMLElement* e = root->FirstChildElement( "segment" ); e; e = e->NextSiblingElement() )
+						tinyxml2::XMLElement* xemap = doc.FirstChildElement( "map" );
+						for (tinyxml2::XMLElement* e = xemap->FirstChildElement( "segment" ); e; e = e->NextSiblingElement() )
 						{
 							// Todo add validation routines to stop buggy XML files being imported
 
@@ -631,6 +662,36 @@ void EditorScreen::LoadMap()
 								std::cout << "Cannot load segment index: " << segmentIndex << std::endl;
 							}
 						}
+
+						tinyxml2::XMLElement* xeledges = doc.FirstChildElement( "ledges" );
+
+						if (xeledges != NULL)
+						{
+							int i = 0;
+							for (tinyxml2::XMLElement* e = xeledges->FirstChildElement( "ledge" ); e; e = e->NextSiblingElement() )
+							{
+								ledges.push_back(new Ledge);
+							
+								int flag = std::atoi(e->Attribute("flag"));
+								ledges[i]->flags = flag;
+
+								std::cout << "Adding new ledge: " << i << std::endl;
+
+								for (tinyxml2::XMLElement* ee = e->FirstChildElement( "node" ); ee; ee = ee->NextSiblingElement() )
+								{
+									float locX = std::atof(ee->Attribute("x"));
+									float locY = std::atof(ee->Attribute("y"));
+									sf::Vector2<float> position(locX, locY);
+
+									ledges[i]->nodes.push_back(position);
+
+									std::cout << "Adding new node to ledge " << i << ": " << position.x << ", " << position.y << std::endl;
+								}
+
+								i++;
+							}
+						}
+
 
 						CoTaskMemFree(pszFilePath);
 					}

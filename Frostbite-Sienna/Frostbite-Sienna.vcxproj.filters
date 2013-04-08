@@ -87,6 +87,9 @@
     <ClCompile Include="Ledge.cpp">
       <Filter>Source Files\Map</Filter>
     </ClCompile>
+    <ClCompile Include="UI_LedgePanel.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -130,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="Ledge.h">
       <Filter>Header Files\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_LedgePanel.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

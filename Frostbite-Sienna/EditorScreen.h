@@ -7,6 +7,7 @@
 #include "Ledge.h"
 #include "UI_SegmentPanel.h"
 #include "UI_SegmentInfoPanel.h"
+#include "UI_LedgePanel.h"
 #include "shobjidl.h"
 
 class EditorScreen  : public GameScreen
@@ -54,7 +55,8 @@ private:
 	bool leftMouseDown, prevLeftMouseDown;
 
 	SegmentPanel* segmentPanel;
-	SegmentInfoPanel* segmentPanelInfo;
+	SegmentInfoPanel* segmentInfoPanel;
+	LedgePanel* ledgePanel;
 
 	// Text elements
 	sf::Text scrollPosText, curLayerText, curZoomLevelText, curDrawingMode;
