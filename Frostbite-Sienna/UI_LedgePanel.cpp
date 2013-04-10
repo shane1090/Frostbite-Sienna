@@ -34,6 +34,11 @@ void LedgePanel::Update()
 			offset--;
 		}
 	}
+
+	if ((ledges.size() > MAX_LEDGE_ROWS) && (offset + MAX_LEDGE_ROWS > ledges.size()))
+		offset = (ledges.size() - MAX_LEDGE_ROWS);
+	else if ((ledges.size() <= MAX_LEDGE_ROWS) && offset > 0)
+		offset = 0;
 }
 
 void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge)

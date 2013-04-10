@@ -173,7 +173,10 @@ void EditorScreen::Update(sf::RenderWindow &Window)
 			} else {
 				ledges.erase(ledges.begin() + curLedge);
 				std::cout << "Ledge " << curLedge << " deleted" << std::endl;
-				curLedge = -1;
+				if (ledges.size())
+					curLedge = curLedge - 1;
+				else
+					curLedge = -1;
 			}
 		}
 
