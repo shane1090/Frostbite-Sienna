@@ -4,7 +4,7 @@
 
 LedgePanel::LedgePanel(std::vector<Ledge*> &ledges) : ledges(ledges)
 {
-	panel = sf::Rect<float>(985, 420, 295, 300);
+	panelRect = sf::Rect<float>(985, 420, 295, 300);
 	offset = 0;
 }
 
@@ -19,26 +19,28 @@ void LedgePanel::LoadContent(sf::Font &font)
 	this->font = font;
 }
 
-void LedgePanel::Update(InputManager &input)
+void LedgePanel::Update()
 {
-	if (input.mousePos.x > panel.left && input.mousePos.y > panel.top &&
-		input.mousePos.x < 1280 && input.mousePos.y < 720)
+	mousePos = InputManager::instance().getMousePosition();
+
+	if (mousePos.x > panelRect.left && mousePos.y > panelRect.top &&
+		mousePos.x < 1280 && mousePos.y < 720)
 	{
-		if (input.MouseWheelMovedDown() && (offset + MAX_LEDGE_ROWS < ledges.size()))
+		if ((InputManager::instance().mouseWheel() < 0) && (offset + MAX_LEDGE_ROWS < ledges.size()))
 		{
 			offset++;
-		} else if (input.MouseWheelMovedUp() && offset > 0)
+		} else if ((InputManager::instance().mouseWheel() > 0) && offset > 0)
 		{
 			offset--;
 		}
 	}
 }
 
-void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge, InputManager &input)
+void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge)
 {
 	sf::RectangleShape panelShape;
-	panelShape.setPosition(panel.left, panel.top);
-	sf::Vector2<float> panelSize(panel.width, panel.height);
+	panelShape.setPosition(panelRect.left, panelRect.top);
+	sf::Vector2<float> panelSize(panelRect.width, panelRect.height);
 	panelShape.setSize(panelSize);
 	panelShape.setFillColor(sf::Color(0,0,0,200));
 	Window.draw(panelShape);
@@ -50,11 +52,11 @@ void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge, InputManager &inp
 
 	for (int i = 0; i < ledges.size(); i++)
 	{
-		if (i >= (offset * MAX_LEDGE_ROWS) && t < MAX_LEDGE_ROWS) {
+		if (i >= offset && t < MAX_LEDGE_ROWS) {
 			float y = t * 20;
 		
 			text.setString("Ledge Group " + Convert(i + 1));
-			text.setPosition(panel.left + 10, panel.top + 10 + y);
+			text.setPosition(panelRect.left + 10, panelRect.top + 10 + y);
 			text.setFont(font);
 			text.setCharacterSize(14);
 
@@ -64,12 +66,12 @@ void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge, InputManager &inp
 				tColor = sf::Color::White;
 
 			// This should be moved to Update
-			if (input.mousePos.x > panel.left + 10 && input.mousePos.x < panel.left + 120 &&
-				input.mousePos.y > panel.top + 10 + y && input.mousePos.y < panel.top + 10 + y + 14)
+			if (mousePos.x > panelRect.left + 10 && mousePos.x < panelRect.left + 120 &&
+				mousePos.y > panelRect.top + 10 + y && mousePos.y < panelRect.top + 10 + y + 14)
 			{
 				tColor = sf::Color::Red;
 
-				if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 				{
 					curLedge = i;
 				}
@@ -79,24 +81,24 @@ void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge, InputManager &inp
 			Window.draw(text);
 
 			text.setString("n " + Convert(ledges[i]->nodes.size()));
-			text.setPosition(panel.left + 155, panel.top + 10 + y);
+			text.setPosition(panelRect.left + 155, panelRect.top + 10 + y);
 			text.setFont(font);
 			text.setCharacterSize(14);
 			text.setColor(tColor);
 			Window.draw(text);
 
 			text.setString("f " + Convert(ledges[i]->flags));
-			text.setPosition(panel.left + 230, panel.top + 10 + y);
+			text.setPosition(panelRect.left + 230, panelRect.top + 10 + y);
 			text.setFont(font);
 			text.setCharacterSize(14);
 			text.setColor(tColor);
 			Window.draw(text);
 
 			// This should be moved to Update
-			if (input.mousePos.x > panel.left + 230 && input.mousePos.x < panel.left + 285 &&
-				input.mousePos.y > panel.top + 10 + y && input.mousePos.y < panel.top + 10 + y + 14)
+			if (mousePos.x > panelRect.left + 230 && mousePos.x < panelRect.left + 285 &&
+				mousePos.y > panelRect.top + 10 + y && mousePos.y < panelRect.top + 10 + y + 14)
 			{
-				if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 				{
 					curLedge = i;
 					ledges[i]->flags = (ledges[i]->flags + 1) % 2;
@@ -110,13 +112,16 @@ void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge, InputManager &inp
 
 	// Draw Scrollbar
 	int rows = ledges.size();
-	int scrollBarHeight = ceil((MAX_LEDGE_ROWS * 20) + 20 / rows);
+	float rowheight = ((100.0f / rows) / 100.0f) * panelRect.height;
+
+	scrollBarHeight = rowheight * (float)MAX_LEDGE_ROWS;
+	
 	sf::Vector2<int> scrollPos(SCREEN_WIDTH - 10,
-							   panel.top + (offset * scrollBarHeight));
+							   panelRect.top + (offset * rowheight));
 
 	sf::RectangleShape scrollBarShape;
-	scrollBarShape.setPosition(scrollPos.x, panel.top);
-	sf::Vector2<float> scrollBarSize(10, panel.height);
+	scrollBarShape.setPosition(scrollPos.x, panelRect.top);
+	sf::Vector2<float> scrollBarSize(10, panelRect.height);
 	scrollBarShape.setSize(scrollBarSize);
 	scrollBarShape.setFillColor(sf::Color(46,70,109,200));
 	Window.draw(scrollBarShape);

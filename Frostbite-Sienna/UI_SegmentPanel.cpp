@@ -6,11 +6,16 @@ SegmentPanel::SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<
 	this->scrollRow = 0;
 	this->offset = 0;
 
-	panelPos = sf::Vector2<int>(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
+	/*panelPos = sf::Vector2<int>(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
 							  SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING);
 
 	segmentSize = sf::Vector2<float>((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING + 10, 
-								   (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
+								   (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);*/
+
+	panelRect = sf::Rect<float>(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
+								SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING, 
+								(MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING + 10, 
+								(MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
 }
 
 
@@ -19,26 +24,29 @@ SegmentPanel::~SegmentPanel(void)
 
 }
 
-void SegmentPanel::Update(InputManager &input)
+void SegmentPanel::Update()
 {
-	if (input.mousePos.x > panelPos.x && input.mousePos.y > panelPos.y &&
-		input.mousePos.x < 1280 && input.mousePos.y < 720)
+	mousePos = InputManager::instance().getMousePosition();
+
+	if (mousePos.x > panelRect.left && mousePos.y > panelRect.top &&
+		mousePos.x < 1280 && mousePos.y < 720)
 	{
-		if (input.MouseWheelMovedDown() && ((offset * MAX_SEGMENT_COLS) + MAX_SEGMENTS < segDef.size()))
+		if ((InputManager::instance().mouseWheel() < 0) && ((offset * MAX_SEGMENT_COLS) + MAX_SEGMENTS < segDef.size()))
 		{
 			offset++;
-		} else if (input.MouseWheelMovedUp() && offset > 0)
+		} else if ((InputManager::instance().mouseWheel() > 0) && offset > 0)
 		{
 			offset--;
 		}
 	}
 }
 
-void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, InputManager &input, sf::RenderWindow &Window)
+void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, sf::RenderWindow &Window)
 {
 	sf::RectangleShape segmentShape;
-	segmentShape.setPosition(panelPos.x, panelPos.y);	
-	segmentShape.setSize(segmentSize);
+	segmentShape.setPosition(panelRect.left,panelRect.top);	
+	sf::Vector2<float> panelSize(panelRect.width, panelRect.height);
+	segmentShape.setSize(panelSize);
 	segmentShape.setFillColor(sf::Color(0,0,0,200));
 	Window.draw(segmentShape);
 
@@ -51,8 +59,8 @@ void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, InputManager &i
 	for (int i = 0; i < segDef.size(); i++)
 	{
 		if (i >= (offset * MAX_SEGMENT_COLS) && t < MAX_SEGMENTS) {
-			dRect.left = panelPos.x + ((MAX_SEGMENT_SIZE + SEGMENT_PADDING) * curCol) + SEGMENT_PADDING;
-			dRect.top = panelPos.y + ((MAX_SEGMENT_SIZE + SEGMENT_PADDING) * curRow) + SEGMENT_PADDING;
+			dRect.left = panelRect.left + ((MAX_SEGMENT_SIZE + SEGMENT_PADDING) * curCol) + SEGMENT_PADDING;
+			dRect.top = panelRect.top + ((MAX_SEGMENT_SIZE + SEGMENT_PADDING) * curRow) + SEGMENT_PADDING;
 			dRect.width = segDef[i]->width;
 			dRect.height = segDef[i]->height;
 
@@ -84,10 +92,10 @@ void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, InputManager &i
 			Window.draw(segSprite);
 
 			// This should be moved to Update
-			if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+			if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 			{
-				if (input.mousePos.x > dRect.left && input.mousePos.x < (dRect.left + dRect.width) &&
-					input.mousePos.y > dRect.top && input.mousePos.y < (dRect.top + dRect.height))
+				if (mousePos.x > dRect.left && mousePos.x < (dRect.left + dRect.width) &&
+					mousePos.y > dRect.top && mousePos.y < (dRect.top + dRect.height))
 				{
 					AddSegment(curLayer, i, scroll);
 				}
@@ -105,11 +113,11 @@ void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, InputManager &i
 	// Draw Scrollbar
 	int rows = ceil((float)segDef.size() / (float)MAX_SEGMENT_COLS) - (MAX_SEGMENT_ROWS - 1);
 	int scrollBarHeight = ceil(((MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING) / rows);
-	sf::Vector2<int> scrollPos(panelPos.x + ((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING),
-							   panelPos.y + (offset * scrollBarHeight));
+	sf::Vector2<int> scrollPos(panelRect.left + ((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING),
+							   panelRect.top + (offset * scrollBarHeight));
 
 	sf::RectangleShape scrollBarShape;
-	scrollBarShape.setPosition(scrollPos.x, panelPos.y);
+	scrollBarShape.setPosition(scrollPos.x, panelRect.top);
 	sf::Vector2<float> scrollBarSize(10, (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
 	scrollBarShape.setSize(scrollBarSize);
 	scrollBarShape.setFillColor(sf::Color(46,70,109,200));

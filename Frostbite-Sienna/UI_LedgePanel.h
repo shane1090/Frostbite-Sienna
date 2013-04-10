@@ -10,10 +10,10 @@ public:
 	~LedgePanel(void);
 
 	void LoadContent(sf::Font &font);
-	void Update(InputManager &input);
-	void Draw(sf::RenderWindow &Window, int &curLedge, InputManager &input);
+	void Update();
+	void Draw(sf::RenderWindow &Window, int &curLedge);
 
-	sf::Rect<float> panel;
+	sf::Rect<float> panelRect;
 
 private:
 	std::vector<Ledge*> &ledges;
@@ -22,6 +22,10 @@ private:
 	sf::Text text;
 
 	int offset;
+
+	float scrollBarHeight;
+
+	sf::Vector2<int> mousePos;
 };
 
 const int MAX_LEDGE_ROWS = 14;

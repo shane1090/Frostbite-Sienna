@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "ScreenManager.h"
-#include "TitleScreen.h"
 
 int main()
 {
@@ -9,25 +8,14 @@ int main()
 	ScreenManager::GetInstance().Initialize();
 	ScreenManager::GetInstance().LoadContent();
 
-	Window.setKeyRepeatEnabled(false);
-
 	while (Window.isOpen())
 	{
-		sf::Event currentEvent;
-		while (Window.pollEvent(currentEvent))
-		{
-			Window.clear(sf::Color(100,149,237));
-		
-			if (currentEvent.type == sf::Event::Closed)
-			{
-				Window.close();
-			}
+		Window.clear(sf::Color(100,149,237));
 
-			ScreenManager::GetInstance().Update(Window, currentEvent);
-			ScreenManager::GetInstance().Draw(Window);
+		ScreenManager::GetInstance().Update(Window);
+		ScreenManager::GetInstance().Draw(Window);
 
-			Window.display();
-		}
+		Window.display();
 	}
 
 	return 0;

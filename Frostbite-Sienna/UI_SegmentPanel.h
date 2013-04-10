@@ -10,12 +10,14 @@ class SegmentPanel
 public:
 	SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<MapSegment*> &mapSeg);
 	~SegmentPanel(void);
-	void Draw(int curLayer, sf::Vector2<float> scroll, InputManager &input, sf::RenderWindow &Window);
-	void Update(InputManager &input);
+	void Draw(int curLayer, sf::Vector2<float> scroll, sf::RenderWindow &Window);
+	void Update();
 	void AddSegment(int layer, int index, sf::Vector2<float> scroll);
 
-	sf::Vector2<int> panelPos;
-	sf::Vector2<float> segmentSize;
+	/*sf::Vector2<int> panelPos;
+	sf::Vector2<float> segmentSize;*/
+
+	sf::Rect<float> panelRect;
 
 protected:
 private:
@@ -24,6 +26,8 @@ private:
 
 	int scrollRow;
 	int offset;
+
+	sf::Vector2<int> mousePos;
 
 };
 

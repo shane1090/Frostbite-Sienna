@@ -1,94 +1,114 @@
 #include "stdafx.h"
 #include "InputManager.h"
 
-InputManager::InputManager()
+void InputManager::Poll(sf::RenderWindow &Window)
 {
+	ClearUnique();
 
-}
+	mouseWheelClicks = 0;
 
-InputManager::~InputManager()
-{
-
-}
-
-void InputManager::Update(sf::RenderWindow &Window, sf::Event event)
-{
-	this->event = event;
-
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
-		leftMouseDown = true;
-	else
-		leftMouseDown = false;
-}
-
-bool InputManager::KeyPressed(sf::Keyboard::Key key)
-{
-	if(event.key.code == key && event.type == sf::Event::KeyPressed)
-		return true;
-	return false;
-}
-
-bool InputManager::KeyPressed(std::vector<sf::Keyboard::Key> keys)
-{
-	for (int i = 0; i < keys.size(); i++)
+	// Process events
+	sf::Event event;
+	while (Window.pollEvent(event))
 	{
-		if (KeyPressed(keys[i]))
-			return true;
+		if (event.type == sf::Event::Closed ||
+			event.type == sf::Event::KeyPressed &&
+			event.key.code == sf::Keyboard::Escape)
+		{
+			Window.close();
+		}
+
+		Update(event);
 	}
-	return false;
 }
 
-bool InputManager::KeyReleased(sf::Keyboard::Key key)
+void InputManager::Update(sf::Event event)
 {
-	if (event.key.code == key && event.type == sf::Event::KeyReleased)
-		return true;
-	return false;
-}
-
-bool InputManager::KeyReleased(std::vector<sf::Keyboard::Key> keys)
-{
-	for (int i = 0; i < keys.size(); i++)
+	if (event.type == sf::Event::MouseMoved)
 	{
-		if (KeyReleased(keys[i]))
-			return true;
+		mousePosition.x = event.mouseMove.x;
+		mousePosition.y = event.mouseMove.y;
+		return;
 	}
-	return false;
-}
 
-bool InputManager::KeyDown(sf::RenderWindow &Window, sf::Keyboard::Key key)
-{
-	if (sf::Keyboard::isKeyPressed(key))
-		return true;
-	return false;
-}
-
-bool InputManager::KeyDown(sf::RenderWindow &Window, std::vector<sf::Keyboard::Key> keys)
-{
-	for (int i = 0; i < keys.size(); i++)
+	// Keyboard events
+	if (event.type == sf::Event::KeyPressed)
 	{
-		if (sf::Keyboard::isKeyPressed(keys[i]))
-			return true;
+		pressedKeyboard.insert(event.key.code); // single event
+		down.insert(event.key.code);
+		return;
 	}
-	return false;
+	else if (event.type == sf::Event::KeyReleased)
+	{
+		releasedKeyboard.insert(event.key.code); // single event
+		down.erase(event.key.code);
+		return;
+	}
+
+	// Mouse events
+	else if (event.type == sf::Event::MouseButtonPressed)
+	{
+		pressedMouse.insert(event.mouseButton.button); // single event
+		mouseDown.insert(event.mouseButton.button);
+		return;
+	}
+	else if (event.type == sf::Event::MouseButtonReleased)
+	{
+		releasedMouse.insert(event.mouseButton.button); // single event
+		mouseDown.erase(event.mouseButton.button);
+		return;
+	}
+	else if (event.type == sf::Event::MouseWheelMoved)
+	{
+		mouseWheelClicks = event.mouseWheel.delta; // number of clicks
+	}
 }
 
-bool InputManager::MouseButtonPressed(sf::Mouse::Button button)
+bool InputManager::Pressed(int value, bool mouse) // default false
 {
-	if (event.mouseButton.button == button && event.type == sf::Event::MouseButtonPressed)
-		return true;
-	return false;
+	if (!mouse)
+	{
+		if (pressedKeyboard.find(value) == pressedKeyboard.end())
+			return false;
+		else return true;
+	}
+	else if (pressedMouse.find(value) == pressedMouse.end())
+		return false;
+	else return true;
 }
 
-bool InputManager::MouseWheelMovedUp()
+bool InputManager::Released(int value, bool mouse) // default false
 {
-	if (event.type == sf::Event::MouseWheelMoved && event.mouseWheel.delta > 0)
-		return true;
-	return false;
+	if (!mouse)
+	{
+		if (releasedKeyboard.find(value) == releasedKeyboard.end())
+			return false;
+		else return true;
+	}
+	else if (releasedMouse.find(value) == releasedMouse.end())
+		return false;
+	else return true;
 }
 
-bool InputManager::MouseWheelMovedDown()
+void InputManager::ClearUnique()
 {
-	if (event.type == sf::Event::MouseWheelMoved && event.mouseWheel.delta < 0)
-		return true;
-	return false;
+	pressedKeyboard.clear();
+	releasedKeyboard.clear();
+	pressedMouse.clear();
+	releasedMouse.clear();
+}
+
+bool InputManager::HeldDown(int value, bool mouse)
+{
+	if (!mouse)
+	{
+		if (down.find(value) == down.end())
+		{
+			return false;
+		}
+		else return true;
+	}
+	else if (mouseDown.find(value) == mouseDown.end())
+		return false;
+	else return true;
 }

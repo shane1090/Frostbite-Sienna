@@ -9,6 +9,7 @@
 #include "UI_SegmentInfoPanel.h"
 #include "UI_LedgePanel.h"
 #include "shobjidl.h"
+#include "InputManager.h"
 
 class EditorScreen  : public GameScreen
 {
@@ -18,7 +19,7 @@ public:
 
 	void LoadContent();
 	void UnloadContent();
-	void Update(sf::RenderWindow &Window, sf::Event event);
+	void Update(sf::RenderWindow &Window);
 	void Draw(sf::RenderWindow &window);
 	void DrawMap(sf::RenderWindow &Window);
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
@@ -52,7 +53,7 @@ private:
 	int curLedge;
 	int curNode;
 
-	bool leftMouseDown, prevLeftMouseDown;
+	bool scrollMap;
 
 	SegmentPanel* segmentPanel;
 	SegmentInfoPanel* segmentInfoPanel;
@@ -66,6 +67,8 @@ private:
 	std::string curFile;
 
 	float zoomScale;
+
+	sf::Vector2<int> mousePos, pMousePos;
 };
 
 const COMDLG_FILTERSPEC c_rgSaveTypes[] =

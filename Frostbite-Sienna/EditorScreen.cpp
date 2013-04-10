@@ -9,6 +9,8 @@ EditorScreen::EditorScreen(void)
 	mouseSelectedSegment = -1;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	zoomScale = 1.0f;
+	scrollMap = false;
+	drawingMode = SEGMENT_SELECTION;
 }
 
 EditorScreen::~EditorScreen(void)
@@ -46,50 +48,55 @@ void EditorScreen::UnloadContent()
 	GameScreen::UnloadContent();
 }
 
-void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
+void EditorScreen::Update(sf::RenderWindow &Window)
 {
-	input.Update(Window, event);
+	InputManager::instance().Poll(Window);
 
-	input.mousePos = sf::Mouse::getPosition(Window);
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) 
-		leftMouseDown = true;
-	else
-		leftMouseDown = false;
+	mousePos = InputManager::instance().getMousePosition();
 
 	switch (drawingMode)
 	{
 	case SEGMENT_SELECTION:
 
-		if (input.mousePos.y > 40)
+		if (mousePos.y > 40)
 		{
-			mouseHoverSegment = GetHoveredSegement(input.mousePos, curLayer);
+			if (!segmentPanel->panelRect.contains(mousePos.x, mousePos.y))
+			{
+				mouseHoverSegment = GetHoveredSegement(mousePos, curLayer);
+			
+				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true) && mousePos.x < 900 && mouseDragSegment == -1)
+					if (mouseHoverSegment != -1)
+						mouseDragSegment = mouseHoverSegment;
+
+				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+				{
+					if (mouseHoverSegment != -1) {
+						mouseSelectedSegment = mouseHoverSegment;
+					} else {
+						mouseSelectedSegment = -1;
+					}
+				}
+			} 
+			else 
+			{
+				mouseHoverSegment = -1;
+			}
 		
 		
 			if (mouseDragSegment > -1 && mouseSelectedSegment > -1)
 			{
-				if (!leftMouseDown)
+				if (InputManager::instance().Released(sf::Mouse::Button::Left, true))
 					mouseDragSegment = -1;
 				else
 				{
 					sf::Vector2<float> loc = mapSeg[mouseDragSegment]->position;
-					loc.x += (input.mousePos.x - input.prevMousePos.x) / layerScales[curLayer];
-					loc.y += (input.mousePos.y - input.prevMousePos.y) / layerScales[curLayer];
+					loc.x += (mousePos.x - pMousePos.x) / layerScales[curLayer];
+					loc.y += (mousePos.y - pMousePos.y) / layerScales[curLayer];
 					mapSeg[mouseDragSegment]->position = loc;
 				}
 			}
 
-			if (leftMouseDown && input.mousePos.x < 900 && mouseDragSegment == -1)
-				if (mouseHoverSegment != -1)
-					mouseDragSegment = mouseHoverSegment;
-
-			if (leftMouseDown && prevLeftMouseDown == false)
-			{
-				if (mouseHoverSegment != -1) {
-					mouseSelectedSegment = mouseHoverSegment;
-				} else {
-					mouseSelectedSegment = -1;
-				}
-			}
+			
 		}
 		else
 		{
@@ -99,7 +106,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		if (mouseSelectedSegment != -1)
 		{
 			// Allow deletion of segments
-			if (input.KeyPressed(sf::Keyboard::Delete))
+			if (InputManager::instance().Pressed(sf::Keyboard::Delete))
 			{
 				std::cout << "Map segment deleted: " << mouseSelectedSegment << std::endl;
 				mapSeg.erase(mapSeg.begin()+mouseSelectedSegment);
@@ -107,40 +114,40 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 				mouseHoverSegment = -1;
 			}
 
-			int xM = input.mousePos.x - input.prevMousePos.x;
-			int yM = input.mousePos.y - input.prevMousePos.y;
+			int xM = mousePos.x - pMousePos.x;
+			int yM = mousePos.y - pMousePos.y;
 
 			// Allow rotation of segments
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
+			if (InputManager::instance().Pressed(sf::Keyboard::R))
 			{
-				float angle = atan2((input.mousePos.y - mapSeg[mouseSelectedSegment]->position.y) + scroll.y,
-								    (input.mousePos.x - mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
+				float angle = atan2((mousePos.y - mapSeg[mouseSelectedSegment]->position.y) + scroll.y,
+								    (mousePos.x - mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
 
 				mapSeg[mouseSelectedSegment]->rotation = angle * (180.0f/M_PI);
 			}
 
 			// Allow scaling of segments
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			if (InputManager::instance().Pressed(sf::Keyboard::S))
 			{
-				mapSeg[mouseSelectedSegment]->scale += sf::Vector2<float>((float)xM * 0.01f, (float)yM * 0.01f);
+				mapSeg[mouseSelectedSegment]->scale += sf::Vector2<float>((float)xM * 0.05f, (float)yM * 0.05f);
 			}
 		}
 
-		segmentPanel->Update(input);
+		segmentPanel->Update();
 
 		break;
 	case LEDGES:
 
-		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+		if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 		{
-			if (input.mousePos.x > 0 && input.mousePos.x < SCREEN_WIDTH &&
-				input.mousePos.y > 40 && input.mousePos.y << 720 &&
-				!ledgePanel->panel.contains(input.mousePos.x, input.mousePos.y))
+			if (mousePos.x > 0 && mousePos.x < SCREEN_WIDTH &&
+				mousePos.y > 40 && mousePos.y < 720 &&
+				!ledgePanel->panelRect.contains(mousePos.x, mousePos.y))
 			{
 				if (ledges.size() == 0)
 					ledges.push_back(new Ledge);
 
-				sf::Vector2<float> nodePos = sf::Vector2<float>(input.mousePos.x, input.mousePos.y) + scroll;
+				sf::Vector2<float> nodePos = sf::Vector2<float>(mousePos.x, mousePos.y) + scroll;
 
 				ledges[curLedge]->nodes.push_back(nodePos);
 
@@ -149,19 +156,20 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		}
 
 		// Add new ledge
-		if (input.KeyPressed(sf::Keyboard::A))
+		if (InputManager::instance().Pressed(sf::Keyboard::A))
 		{
 			ledges.push_back(new Ledge);
 			curLedge = ledges.size() - 1;
 		}
 
 		// Allow deletion of nodes in ledges
-		if (input.KeyPressed(sf::Keyboard::Delete))
+		if (InputManager::instance().Pressed(sf::Keyboard::Delete))
 		{
 			if (ledges[curLedge]->nodes.size() > 1)
 			{
-				ledges[curLedge]->nodes.erase(ledges[curLedge]->nodes.end()-1);
 				std::cout << "Ledge " << curLedge << " node deleted" << std::endl;
+				ledges[curLedge]->nodes.erase(ledges[curLedge]->nodes.end() - 1);
+				
 			} else {
 				ledges.erase(ledges.begin() + curLedge);
 				std::cout << "Ledge " << curLedge << " deleted" << std::endl;
@@ -169,15 +177,23 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 			}
 		}
 
-		ledgePanel->Update(input);
+		ledgePanel->Update();
 
 		break;
 	}
 
-	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+	if (InputManager::instance().Pressed(sf::Mouse::Button::Right, true))
 	{
-		scroll.x -= (input.mousePos.x - input.prevMousePos.x) * 2.0f;
-		scroll.y -= (input.mousePos.y - input.prevMousePos.y) * 2.0f;
+		scrollMap = true;
+	}
+
+	if (scrollMap)
+	{
+		if (InputManager::instance().Released(sf::Mouse::Button::Right, true))
+			scrollMap = false;
+
+		scroll.x -= (mousePos.x - pMousePos.x) * 2.0f;
+		scroll.y -= (mousePos.y - pMousePos.y) * 2.0f;
 	}
 
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
@@ -185,8 +201,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Event event)
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	}
 
-	input.prevMousePos = input.mousePos;
-	prevLeftMouseDown = leftMouseDown;
+	pMousePos = mousePos;
 }
 
 void EditorScreen::Draw(sf::RenderWindow &Window)
@@ -205,12 +220,12 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 			segmentInfoPanel->Draw(Window, mouseSelectedSegment);
 		}
 
-		segmentPanel->Draw(curLayer, scroll, input, Window);
+		segmentPanel->Draw(curLayer, scroll, Window);
 		
 		break;
 	case LEDGES:
 		DrawLedges(Window);
-		ledgePanel->Draw(Window, curLedge, input);
+		ledgePanel->Draw(Window, curLedge);
 		break;
 	}
 
@@ -242,7 +257,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 	curLayerText.setCharacterSize(14);
 	Window.draw(curLayerText);
 
-	scrollPosText.setString("Mouse Position: " + Convert(((float)input.mousePos.x + scroll.x) / zoomScale) + "," + Convert(((float)input.mousePos.y + scroll.y) / zoomScale));
+	scrollPosText.setString("Mouse Position: " + Convert(((float)mousePos.x + scroll.x) / zoomScale) + "," + Convert(((float)mousePos.y + scroll.y) / zoomScale));
 	scrollPosText.setColor(sf::Color(255,255,255,255));
 	scrollPosText.setPosition(10, 695);
 	scrollPosText.setFont(font);
@@ -434,11 +449,11 @@ bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
 	sf::Rect<int> sRect = sf::Rect<int>(2 + (30 * (index % 9)),0,30,30);
 	sf::Rect<int> dRect = sf::Rect<int>(x, y, 30, 30);
 
-	if (dRect.contains(input.mousePos.x, input.mousePos.y))
+	if (dRect.contains(mousePos.x, mousePos.y))
 	{
 		sRect.top = 30;
 
-		if (input.MouseButtonPressed(sf::Mouse::Button::Left))
+		if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 			r = true;
 	}
 	
@@ -714,7 +729,6 @@ void EditorScreen::ResetMap()
 	zoomScale = 1.0f;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	curLayer = 1;
-	drawingMode = SEGMENT_SELECTION;
 	ledges.clear();
 	curLedge = 0;
 }

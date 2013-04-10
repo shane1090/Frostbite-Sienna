@@ -1,0 +1,52 @@
+﻿Build started 10/04/2013 23:58:37.
+     1>Project "F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Frostbite-Sienna.vcxproj" on node 2 (Build target(s)).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\SFML 2.0\Snapshot\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D SFML_STATIC /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release Static\\" /Fd"Release Static\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt EditorScreen.cpp
+         EditorScreen.cpp
+     1>EditorScreen.cpp(63): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>EditorScreen.cpp(126): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(145): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>EditorScreen.cpp(150): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>EditorScreen.cpp(289): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(296): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(338): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(352): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>EditorScreen.cpp(365): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(369): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(389): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(397): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(492): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(502): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(503): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(568): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(587): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(593): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(666): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(667): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(668): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(670): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
+     1>EditorScreen.cpp(673): warning C4018: '<' : signed/unsigned mismatch
+     1>EditorScreen.cpp(697): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+     1>EditorScreen.cpp(698): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\SFML 2.0\Build\lib\Release" "sfml-system-s.lib" "sfml-main.lib" "sfml-graphics-s.lib" "sfml-audio-s.lib" "sfml-network-s.lib" "sfml-window-s.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.lib" /MACHINE:X86 /SAFESEH "Release Static\EditorScreen.obj"
+         "Release Static\GlobalFunctions.obj"
+         "Release Static\InputManager.obj"
+         "Release Static\Ledge.obj"
+         "Release Static\UI_LedgePanel.obj"
+         "Release Static\Main.obj"
+         "Release Static\GameScreen.obj"
+         "Release Static\MapSegment.obj"
+         "Release Static\ScreenManager.obj"
+         "Release Static\SegmentDefinition.obj"
+         "Release Static\UI_SegmentPanel.obj"
+         "Release Static\tinyxml2.obj"
+         "Release Static\UI_SegmentInfoPanel.obj"
+         Generating code
+         Finished generating code
+         Frostbite-Sienna.vcxproj -> F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.exe
+     1>Done Building Project "F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Frostbite-Sienna.vcxproj" (Build target(s)).
+
+Build succeeded.
+
+Time Elapsed 00:00:02.55

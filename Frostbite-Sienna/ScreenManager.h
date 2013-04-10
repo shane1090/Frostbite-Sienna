@@ -1,9 +1,6 @@
-#ifndef SCREENMANAGER_H
-#define SCREENMANAGER_H
+#pragma once
 
 #include "GameScreen.h"
-#include "SplashScreen.h"
-#include "TitleScreen.h"
 #include "EditorScreen.h"
 
 class ScreenManager
@@ -14,17 +11,14 @@ public:
 
 	void Initialize();
 	void LoadContent();
-	void Update(sf::RenderWindow &Window, sf::Event event);
+	void Update(sf::RenderWindow &Window);
 	void Draw(sf::RenderWindow &window);
 
 	void AddScreen(GameScreen *screen);
-	
-protected:
+
 private:
 	ScreenManager();
 	ScreenManager(ScreenManager const&);
 	void operator=(ScreenManager const&);
 
 };
-
-#endif // SCREENMANAGER_H
