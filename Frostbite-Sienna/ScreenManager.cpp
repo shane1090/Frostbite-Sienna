@@ -37,12 +37,12 @@ void ScreenManager::LoadContent()
 	currentScreen->LoadContent();
 }
 
-void ScreenManager::Update(sf::RenderWindow &Window)
+void ScreenManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	currentScreen->Update(Window);
+	currentScreen->Update(Window, gameTime);
 }
 
-void ScreenManager::Draw(sf::RenderWindow &window)
+void ScreenManager::Draw(sf::RenderWindow &window, sf::Clock &gameTime)
 {
-	currentScreen->Draw(window);
+	currentScreen->Draw(window, gameTime);
 }

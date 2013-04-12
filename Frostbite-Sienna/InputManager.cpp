@@ -11,9 +11,7 @@ void InputManager::Poll(sf::RenderWindow &Window)
 	sf::Event event;
 	while (Window.pollEvent(event))
 	{
-		if (event.type == sf::Event::Closed ||
-			event.type == sf::Event::KeyPressed &&
-			event.key.code == sf::Keyboard::Escape)
+		if (event.type == sf::Event::Closed)
 		{
 			Window.close();
 		}

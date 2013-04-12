@@ -27,3 +27,6 @@ const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 720;
 const int SCREEN_BPP = 32;
 
+const int FRICTION = 1000.0f;
+const int GRAVITY = 900.0f;
+

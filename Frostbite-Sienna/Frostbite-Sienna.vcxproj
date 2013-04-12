@@ -126,10 +126,13 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Character.cpp" />
     <ClCompile Include="EditorScreen.cpp" />
     <ClCompile Include="GlobalFunctions.cpp" />
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Ledge.cpp" />
+    <ClCompile Include="Map.cpp" />
+    <ClCompile Include="PlayTestScreen.cpp" />
     <ClCompile Include="UI_LedgePanel.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameScreen.cpp" />
@@ -141,11 +144,14 @@
     <ClCompile Include="UI_SegmentInfoPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Character.h" />
     <ClInclude Include="EditorScreen.h" />
     <ClInclude Include="GameScreen.h" />
     <ClInclude Include="GlobalFunctions.h" />
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Ledge.h" />
+    <ClInclude Include="Map.h" />
+    <ClInclude Include="PlayTestScreen.h" />
     <ClInclude Include="UI_LedgePanel.h" />
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />

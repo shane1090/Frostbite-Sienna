@@ -10,8 +10,8 @@ public:
 
 	virtual void LoadContent();
 	virtual void UnloadContent();
-	virtual void Update(sf::RenderWindow &Window);
-	virtual void Draw(sf::RenderWindow &window);
+	virtual void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
+	virtual void Draw(sf::RenderWindow &window, sf::Clock &gameTime);
 
 protected:
 

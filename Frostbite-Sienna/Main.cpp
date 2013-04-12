@@ -8,12 +8,14 @@ int main()
 	ScreenManager::GetInstance().Initialize();
 	ScreenManager::GetInstance().LoadContent();
 
+	sf::Clock gameTime;
+
 	while (Window.isOpen())
 	{
 		Window.clear(sf::Color(100,149,237));
 
-		ScreenManager::GetInstance().Update(Window);
-		ScreenManager::GetInstance().Draw(Window);
+		ScreenManager::GetInstance().Update(Window, gameTime);
+		ScreenManager::GetInstance().Draw(Window, gameTime);
 
 		Window.display();
 	}

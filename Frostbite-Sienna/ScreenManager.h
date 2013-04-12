@@ -2,6 +2,7 @@
 
 #include "GameScreen.h"
 #include "EditorScreen.h"
+#include "PlayTestScreen.h"
 
 class ScreenManager
 {
@@ -11,8 +12,8 @@ public:
 
 	void Initialize();
 	void LoadContent();
-	void Update(sf::RenderWindow &Window);
-	void Draw(sf::RenderWindow &window);
+	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
+	void Draw(sf::RenderWindow &window, sf::Clock &gameTime);
 
 	void AddScreen(GameScreen *screen);
 

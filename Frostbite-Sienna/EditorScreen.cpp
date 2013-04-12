@@ -7,7 +7,7 @@ EditorScreen::EditorScreen(void)
 	curLedge = 0;
 	mouseDragSegment = -1;
 	mouseSelectedSegment = -1;
-	scroll = sf::Vector2<float>(-640.0f, -360.0f);
+	scroll = sf::Vector2<float>(-640.0f, -360.0f); // Set 0,0 to center of screen
 	zoomScale = 1.0f;
 	scrollMap = false;
 	drawingMode = SEGMENT_SELECTION;
@@ -25,8 +25,11 @@ void EditorScreen::LoadContent()
 
 	if (!toolbarIconsTex.loadFromFile("Assets/GUI/editor-icons.png"))
 		std::cout << "Could not load toolbar icons" << std::endl;
-
-	LoadSegmentDefinitions();
+	
+	if (segDef.size() == 0)
+	{
+		LoadSegmentDefinitions();
+	}
 
 	drawingMode = SEGMENT_SELECTION;
 
@@ -48,7 +51,7 @@ void EditorScreen::UnloadContent()
 	GameScreen::UnloadContent();
 }
 
-void EditorScreen::Update(sf::RenderWindow &Window)
+void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
 	InputManager::instance().Poll(Window);
 
@@ -207,7 +210,7 @@ void EditorScreen::Update(sf::RenderWindow &Window)
 	pMousePos = mousePos;
 }
 
-void EditorScreen::Draw(sf::RenderWindow &Window)
+void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
 	DrawMap(Window);
 
@@ -286,52 +289,6 @@ void EditorScreen::Draw(sf::RenderWindow &Window)
 	Window.draw(curDrawingMode);
 
 	DrawToolBar(Window);
-
-	if (DrawButton(Window, 180 , 5 , 5))
-	{
-		zoomScale = zoomScale + 0.05;
-		if (zoomScale > 2.0f) zoomScale = 2.0f;
-
-	}
-	
-	if (DrawButton(Window, 145 , 5 , 4))
-	{
-		zoomScale = zoomScale - 0.05;
-		if (zoomScale < 0.1f) zoomScale = 0.1f;
-
-
-	}
-
-	if (DrawButton(Window, 110 , 5 , 3))
-	{
-		curLayer = (curLayer + 1) % 3;
-		mouseSelectedSegment = -1;
-		mouseHoverSegment = -1;
-		mouseDragSegment = -1;
-		std::cout << "Layer changed to: " << curLayer << std::endl;
-	}
-
-	if (DrawButton(Window, 40 , 5 , 2))
-		SaveMap();
-
-	if (DrawButton(Window, 75 , 5 , 1))
-		LoadMap();
-
-	if (DrawButton(Window, 5 , 5 , 0))
-		ResetMap();
-
-	sf::Sprite toolbarSpacer;
-	toolbarSpacer.setTexture(toolbarIconsTex);
-	toolbarSpacer.setTextureRect(sf::Rect<int>(0, 2, 2, 30));
-	toolbarSpacer.setPosition(220, 5);
-	Window.draw(toolbarSpacer, sf::RenderStates::Default);
-
-	for ( int i = SEGMENT_SELECTION; i != DMODE_LAST; i++ )
-	{
-		if (DrawButton(Window, 232 + (i * 35) , 5 , (6 + i))) {
-			drawingMode = (drawingMode_t)i;
-		}
-	}
 }
 
 void EditorScreen::DrawMap(sf::RenderWindow &Window)
@@ -443,13 +400,89 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	segmentShape.setSize(segmentSize);
 	segmentShape.setFillColor(sf::Color(0,0,0,180));
 	Window.draw(segmentShape);
+
+	sf::Sprite toolbarSpacer;
+	toolbarSpacer.setTexture(toolbarIconsTex);
+	toolbarSpacer.setTextureRect(sf::Rect<int>(0, 2, 2, 30));
+
+	int x = 5;
+
+	if (DrawButton(Window, x, 5 , 0)) // New Map
+		ResetMap();
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 2)) // Save Map
+		SaveMap();
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 1)) // Load Map
+		LoadMap();
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 3)) // Layer change
+	{
+		curLayer = (curLayer + 1) % 3;
+		mouseSelectedSegment = -1;
+		mouseHoverSegment = -1;
+		mouseDragSegment = -1;
+		std::cout << "Layer changed to: " << curLayer << std::endl;
+	}
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 4)) // Zoom out
+	{
+		zoomScale = zoomScale - 0.05;
+		if (zoomScale < 0.1f) zoomScale = 0.1f;
+	}
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 5)) // Zoom in
+	{
+		zoomScale = zoomScale + 0.05;
+		if (zoomScale > 2.0f) zoomScale = 2.0f;
+	}
+
+	x = x + 40;
+	toolbarSpacer.setPosition(x, 5);
+	Window.draw(toolbarSpacer, sf::RenderStates::Default);
+	
+	x = x + 10;
+	if (DrawButton(Window, x, 5 , 6)) // Segment drawing mode
+	{
+		drawingMode = (drawingMode_t)SEGMENT_SELECTION;
+	}
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 7)) // Ledge drawing mode
+	{
+		drawingMode = (drawingMode_t)LEDGES;
+	}
+
+	x = x + 35;
+	if (DrawButton(Window, x, 5 , 8)) // Collision drawing mode
+	{
+		
+	}
+
+	x = x + 40;
+	toolbarSpacer.setPosition(x, 5);
+	Window.draw(toolbarSpacer, sf::RenderStates::Default);
+
+	x = x + 10;
+	if (DrawButton(Window, x, 5 , 9)) // Test map
+	{
+		PlayTestScreen *screen = new PlayTestScreen;
+		screen->SetMapData(segDef, mapSeg, ledges);
+		ScreenManager::GetInstance().AddScreen(screen);
+	}
+
 }
 
 bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
 {
 	bool r = false;
 
-	sf::Rect<int> sRect = sf::Rect<int>(2 + (30 * (index % 9)),0,30,30);
+	sf::Rect<int> sRect = sf::Rect<int>(2 + (30 * (index % 10)),0,30,30);
 	sf::Rect<int> dRect = sf::Rect<int>(x, y, 30, 30);
 
 	if (dRect.contains(mousePos.x, mousePos.y))
@@ -734,4 +767,11 @@ void EditorScreen::ResetMap()
 	curLayer = 1;
 	ledges.clear();
 	curLedge = 0;
+}
+
+void EditorScreen::SetMapData(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges)
+{
+	this->segDef = segDef;
+	this->mapSeg = mapSeg;
+	this->ledges = ledges;
 }

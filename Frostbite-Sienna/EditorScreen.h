@@ -11,7 +11,7 @@
 #include "shobjidl.h"
 #include "InputManager.h"
 
-class EditorScreen  : public GameScreen
+class EditorScreen : public GameScreen
 {
 public:
 	EditorScreen(void);
@@ -19,8 +19,8 @@ public:
 
 	void LoadContent();
 	void UnloadContent();
-	void Update(sf::RenderWindow &Window);
-	void Draw(sf::RenderWindow &window);
+	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
+	void Draw(sf::RenderWindow &window, sf::Clock &gameTime);
 	void DrawMap(sf::RenderWindow &Window);
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
 	void DrawToolBar(sf::RenderWindow &Window);
@@ -28,6 +28,7 @@ public:
 	void DrawLedges(sf::RenderWindow &Window);
 	void SaveMap();
 	void LoadMap();
+	void SetMapData(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges);
 
 private:
 	void LoadSegmentDefinitions();

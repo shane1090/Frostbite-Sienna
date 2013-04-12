@@ -21,12 +21,12 @@ void GameScreen::UnloadContent()
 
 }
 
-void GameScreen::Update(sf::RenderWindow &Window)
+void GameScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
 	
 }
 
-void GameScreen::Draw(sf::RenderWindow &window)
+void GameScreen::Draw(sf::RenderWindow &window, sf::Clock &gameTime)
 {
 
 }
