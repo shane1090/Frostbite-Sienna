@@ -14,6 +14,8 @@ public:
 
 	Map *map;
 
+	sf::Vector2<float> getLocation(){return location;}
+
 private:
 	sf::Vector2<float> location;
 	sf::Vector2<float> trajectory;

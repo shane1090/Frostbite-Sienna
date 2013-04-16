@@ -21,7 +21,7 @@ void Character::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	gameTime.restart();
 
 	// Update location by trajectory
-	sf::Vector2<float> pLocation = sf::Vector2<float>(location.x, location.y);
+	sf::Vector2<float> pLocation = sf::Vector2<float>((location.x), location.y);
 
 	if (state == GROUNDED)
 	{
@@ -107,7 +107,7 @@ void Character::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		}
 	}
 
-	// Input
+	// Input Keyboard
 	if (InputManager::instance().HeldDown(sf::Keyboard::Left))
 	{
 		trajectory.x = -200.0f;
@@ -117,19 +117,30 @@ void Character::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		trajectory.x = 200.0f;
 	}
 
-	if (InputManager::instance().Pressed(sf::Keyboard::Space))
+	// Input Gamepad
+	float gamepadLeftStickX = InputManager::instance().GetJoystickAxis(sf::Joystick::X);
+	if (gamepadLeftStickX > 10.0f || gamepadLeftStickX < -10.0f)
 	{
-		trajectory.y = -600.0f;
-		state = AIR;
-		ledgeAttach = -1;
+		trajectory.x = gamepadLeftStickX * 2.0f;
+	}
+
+	if (state == GROUNDED)
+	{
+		if (InputManager::instance().Pressed(sf::Keyboard::Space) ||
+			InputManager::instance().Pressed(0, false, true))
+		{
+			trajectory.y = -400.0f;
+			state = AIR;
+			ledgeAttach = -1;
+		}
 	}
 }
 
 void Character::Draw(sf::RenderWindow &Window, sf::Vector2<float> &scroll)
 {
 	sf::RectangleShape segmentShape;
-	segmentShape.setPosition(location.x - scroll.x, location.y - scroll.y);
-	segmentShape.setSize(sf::Vector2<float>(20,40));
+	segmentShape.setPosition(location.x - scroll.x, (location.y - 60.0f) - scroll.y);
+	segmentShape.setSize(sf::Vector2<float>(20,60));
 	segmentShape.setFillColor(sf::Color::Red);
 	Window.draw(segmentShape);
 }

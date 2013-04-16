@@ -60,32 +60,65 @@ void InputManager::Update(sf::Event event)
 	{
 		mouseWheelClicks = event.mouseWheel.delta; // number of clicks
 	}
+
+	// Gamepad events
+	else if (event.type == sf::Event::JoystickButtonPressed)
+	{
+		pressedButton.insert(event.joystickButton.button); // single event
+		buttonDown.insert(event.joystickButton.button);
+		return;
+	}
+	else if (event.type == sf::Event::JoystickButtonReleased)
+	{
+		releasedButton.insert(event.joystickButton.button); // single event
+		buttonDown.erase(event.joystickButton.button);
+		return;
+	}
+
+	//std::cout << "Button: " << event.joystickButton.button << std::endl;
 }
 
-bool InputManager::Pressed(int value, bool mouse) // default false
+bool InputManager::Pressed(int value, bool mouse, bool gamepad) // default false
 {
-	if (!mouse)
+	if (!gamepad)
 	{
-		if (pressedKeyboard.find(value) == pressedKeyboard.end())
+		if (!mouse)
+		{
+			if (pressedKeyboard.find(value) == pressedKeyboard.end())
+				return false;
+			else return true;
+		}
+		else if (pressedMouse.find(value) == pressedMouse.end())
 			return false;
 		else return true;
 	}
-	else if (pressedMouse.find(value) == pressedMouse.end())
+	else if (pressedButton.find(value) == pressedButton.end())
 		return false;
 	else return true;
 }
 
-bool InputManager::Released(int value, bool mouse) // default false
+bool InputManager::Released(int value, bool mouse, bool gamepad) // default false
 {
-	if (!mouse)
+	if (!gamepad)
 	{
-		if (releasedKeyboard.find(value) == releasedKeyboard.end())
+		if (!mouse)
+		{
+			if (releasedKeyboard.find(value) == releasedKeyboard.end())
+				return false;
+			else return true;
+		}
+		else if (releasedMouse.find(value) == releasedMouse.end())
 			return false;
 		else return true;
-	}
-	else if (releasedMouse.find(value) == releasedMouse.end())
+	} 
+	else if (releasedButton.find(value) == releasedButton.end())
 		return false;
 	else return true;
+}
+
+float InputManager::GetJoystickAxis(sf::Joystick::Axis axis)
+{
+	return sf::Joystick::getAxisPosition(1, sf::Joystick::X);
 }
 
 void InputManager::ClearUnique()
@@ -94,19 +127,26 @@ void InputManager::ClearUnique()
 	releasedKeyboard.clear();
 	pressedMouse.clear();
 	releasedMouse.clear();
+	pressedButton.clear();
+	releasedButton.clear();
 }
 
-bool InputManager::HeldDown(int value, bool mouse)
+bool InputManager::HeldDown(int value, bool mouse, bool gamepad)
 {
-	if (!mouse)
+	if (!gamepad)
 	{
-		if (down.find(value) == down.end())
+		if (!mouse)
 		{
-			return false;
+			if (down.find(value) == down.end())
+			{
+				return false;
+			}
+			else return true;
 		}
+		else if (mouseDown.find(value) == mouseDown.end())
+			return false;
 		else return true;
-	}
-	else if (mouseDown.find(value) == mouseDown.end())
+	} else if (buttonDown.find(value) == buttonDown.end())
 		return false;
 	else return true;
 }

@@ -41,7 +41,7 @@ void Map::Draw(sf::RenderWindow &Window, int startLayer, int endLayer, sf::Vecto
 		{
 			scale = 0.75f;
 		}
-		else if (l == 2)
+		else if (l == 4)
 		{
 			scale = 1.25f;
 		}

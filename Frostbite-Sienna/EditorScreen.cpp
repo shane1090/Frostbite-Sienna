@@ -33,6 +33,14 @@ void EditorScreen::LoadContent()
 
 	drawingMode = SEGMENT_SELECTION;
 
+	// Intiliase panelManager
+	panelManager = new PanelManager();
+	Panel *segmentPane = new Panel(sf::Rect<float>(200,200,250,200));
+	panelManager->AddPanel(segmentPane);
+
+	Panel *ledgePane = new Panel(sf::Rect<float>(600,300,200,250));
+	panelManager->AddPanel(ledgePane);
+
 	segmentPanel = new SegmentPanel(segDef, mapSeg);
 	segmentInfoPanel = new SegmentInfoPanel(segDef, mapSeg);
 	segmentInfoPanel->LoadContent(font);
@@ -42,6 +50,8 @@ void EditorScreen::LoadContent()
 
 	// Set parallax scrolling scales for each layer
 	layerScales.push_back(0.75f);
+	layerScales.push_back(1.0f);
+	layerScales.push_back(1.0f);
 	layerScales.push_back(1.0f);
 	layerScales.push_back(1.25f);
 }
@@ -207,6 +217,8 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	}
 
+	panelManager->Update(Window, gameTime);
+
 	pMousePos = mousePos;
 }
 
@@ -242,9 +254,15 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 		layerName = "back";
 		break;
 	case 1:
-		layerName = "mid";
+		layerName = "mid-back";
 		break;
 	case 2:
+		layerName = "mid-center";
+		break;
+	case 3:
+		layerName = "mid-fore";
+		break;
+	case 4:
 		layerName = "fore";
 		break;
 	}
@@ -288,12 +306,14 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 	curDrawingMode.setCharacterSize(14);
 	Window.draw(curDrawingMode);
 
+	panelManager->Draw(Window, gameTime);
+
 	DrawToolBar(Window);
 }
 
 void EditorScreen::DrawMap(sf::RenderWindow &Window)
 {
-	for (int l = 0; l < 3; l++)
+	for (int l = 0; l < layerScales.size(); l++)
 	{
 		for (int i = 0; i < mapSeg.size(); i++)
 		{
@@ -421,7 +441,7 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 3)) // Layer change
 	{
-		curLayer = (curLayer + 1) % 3;
+		curLayer = (curLayer + 1) % 5;
 		mouseSelectedSegment = -1;
 		mouseHoverSegment = -1;
 		mouseDragSegment = -1;
@@ -555,6 +575,13 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 	}
 
 	return hoveredSegment;
+}
+
+int EditorScreen::GetHoveredLedgeNode(sf::Vector2<int> mousePos)
+{
+	int hoveredNode = -1;
+
+	return hoveredNode;
 }
 
 void EditorScreen::SaveMap()

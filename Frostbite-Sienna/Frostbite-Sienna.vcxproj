@@ -132,6 +132,8 @@
     <ClCompile Include="InputManager.cpp" />
     <ClCompile Include="Ledge.cpp" />
     <ClCompile Include="Map.cpp" />
+    <ClCompile Include="Panel.cpp" />
+    <ClCompile Include="PanelManager.cpp" />
     <ClCompile Include="PlayTestScreen.cpp" />
     <ClCompile Include="UI_LedgePanel.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -151,6 +153,8 @@
     <ClInclude Include="InputManager.h" />
     <ClInclude Include="Ledge.h" />
     <ClInclude Include="Map.h" />
+    <ClInclude Include="Panel.h" />
+    <ClInclude Include="PanelManager.h" />
     <ClInclude Include="PlayTestScreen.h" />
     <ClInclude Include="UI_LedgePanel.h" />
     <ClInclude Include="MapSegment.h" />

@@ -10,6 +10,7 @@
 #include "UI_LedgePanel.h"
 #include "shobjidl.h"
 #include "InputManager.h"
+#include "PanelManager.h"
 
 class EditorScreen : public GameScreen
 {
@@ -35,6 +36,7 @@ private:
 	void ResetMap();
 
 	int GetHoveredSegement(sf::Vector2<int> mousePos, int layer);
+	int GetHoveredLedgeNode(sf::Vector2<int> mousePos);
 
 	sf::Font font;
 
@@ -50,6 +52,7 @@ private:
 
 	int curLayer;
 	int mouseDragSegment, mouseHoverSegment, mouseSelectedSegment;
+	int mouseDragNode, mouseHoverNode, mouseSelectedNode;
 
 	int curLedge;
 	int curNode;
@@ -70,6 +73,8 @@ private:
 	float zoomScale;
 
 	sf::Vector2<int> mousePos, pMousePos;
+
+	PanelManager *panelManager;
 };
 
 const COMDLG_FILTERSPEC c_rgSaveTypes[] =

@@ -49,6 +49,12 @@
     <Filter Include="Source Files\Character">
       <UniqueIdentifier>{a15bf86f-1b59-4f14-be4f-feae65661a31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UI\Panels">
+      <UniqueIdentifier>{838033aa-e090-4426-a472-0d26042cd195}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI\Panels">
+      <UniqueIdentifier>{89f2cb93-a377-4e30-bc2b-d039c8dd841f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="tinyxml2.cpp">
@@ -75,20 +81,11 @@
     <ClCompile Include="GameScreen.cpp">
       <Filter>Source Files\ScreenManager</Filter>
     </ClCompile>
-    <ClCompile Include="UI_SegmentInfoPanel.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
-    <ClCompile Include="UI_SegmentPanel.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="GlobalFunctions.cpp">
       <Filter>Source Files\Misc</Filter>
     </ClCompile>
     <ClCompile Include="Ledge.cpp">
       <Filter>Source Files\Map</Filter>
-    </ClCompile>
-    <ClCompile Include="UI_LedgePanel.cpp">
-      <Filter>Source Files\UI</Filter>
     </ClCompile>
     <ClCompile Include="PlayTestScreen.cpp">
       <Filter>Source Files\Screens</Filter>
@@ -98,6 +95,21 @@
     </ClCompile>
     <ClCompile Include="Map.cpp">
       <Filter>Source Files\Map</Filter>
+    </ClCompile>
+    <ClCompile Include="PanelManager.cpp">
+      <Filter>Source Files\UI</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_LedgePanel.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_SegmentInfoPanel.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_SegmentPanel.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Panel.cpp">
+      <Filter>Source Files\UI</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -125,20 +137,11 @@
     <ClInclude Include="ScreenManager.h">
       <Filter>Header Files\ScreenManager</Filter>
     </ClInclude>
-    <ClInclude Include="UI_SegmentInfoPanel.h">
-      <Filter>Header Files\UI</Filter>
-    </ClInclude>
-    <ClInclude Include="UI_SegmentPanel.h">
-      <Filter>Header Files\UI</Filter>
-    </ClInclude>
     <ClInclude Include="GlobalFunctions.h">
       <Filter>Header Files\Misc</Filter>
     </ClInclude>
     <ClInclude Include="Ledge.h">
       <Filter>Header Files\Map</Filter>
-    </ClInclude>
-    <ClInclude Include="UI_LedgePanel.h">
-      <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="PlayTestScreen.h">
       <Filter>Header Files\Screens</Filter>
@@ -148,6 +151,21 @@
     </ClInclude>
     <ClInclude Include="Map.h">
       <Filter>Header Files\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="PanelManager.h">
+      <Filter>Header Files\UI</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_LedgePanel.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_SegmentInfoPanel.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_SegmentPanel.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="Panel.h">
+      <Filter>Header Files\UI</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

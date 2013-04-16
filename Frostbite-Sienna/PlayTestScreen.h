@@ -26,5 +26,10 @@ private:
 	Character *character;
 
 	sf::Vector2<float> scroll;
+
+	sf::Font font;
+
+	char fpsBuffer[32];
+	sf::Text fpsCounter;
 };
 
