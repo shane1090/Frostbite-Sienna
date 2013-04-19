@@ -135,13 +135,13 @@
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PanelManager.cpp" />
     <ClCompile Include="PlayTestScreen.cpp" />
+    <ClCompile Include="UI_SegmentPanel.cpp" />
     <ClCompile Include="UI_LedgePanel.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GameScreen.cpp" />
     <ClCompile Include="MapSegment.cpp" />
     <ClCompile Include="ScreenManager.cpp" />
     <ClCompile Include="SegmentDefinition.cpp" />
-    <ClCompile Include="UI_SegmentPanel.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
     <ClCompile Include="UI_SegmentInfoPanel.cpp" />
   </ItemGroup>
@@ -156,11 +156,11 @@
     <ClInclude Include="Panel.h" />
     <ClInclude Include="PanelManager.h" />
     <ClInclude Include="PlayTestScreen.h" />
+    <ClInclude Include="UI_SegmentPanel.h" />
     <ClInclude Include="UI_LedgePanel.h" />
     <ClInclude Include="MapSegment.h" />
     <ClInclude Include="ScreenManager.h" />
     <ClInclude Include="SegmentDefinition.h" />
-    <ClInclude Include="UI_SegmentPanel.h" />
     <ClInclude Include="stdafx.h" />
     <ClInclude Include="tinyxml2.h" />
     <ClInclude Include="UI_SegmentInfoPanel.h" />

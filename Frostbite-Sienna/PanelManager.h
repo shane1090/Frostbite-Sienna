@@ -12,6 +12,7 @@ public:
 	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void Draw(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void AddPanel(Panel *&panel);
+	bool CheckMouseHover(sf::Vector2<int> mousePos);
 	std::vector<Panel*> panels;
 
 private:

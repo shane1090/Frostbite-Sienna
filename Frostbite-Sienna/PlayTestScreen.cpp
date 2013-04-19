@@ -4,6 +4,7 @@
 PlayTestScreen::PlayTestScreen(void)
 {
 	scroll = sf::Vector2<float>(-640.0f, -360.0f); // Set 0,0 to center of screen
+	showLedges = false;
 }
 
 PlayTestScreen::~PlayTestScreen(void)
@@ -25,11 +26,9 @@ void PlayTestScreen::UnloadContent()
 	GameScreen::UnloadContent();
 }
 
-void PlayTestScreen::SetMapData(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges)
+void PlayTestScreen::SetMapData(Map *map)
 {
-	map = new Map;
-
-	map->LoadConfig(segDef, mapSeg, ledges);
+	this->map = map;
 }
 
 void PlayTestScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
@@ -39,7 +38,7 @@ void PlayTestScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	sf::Time elapsed = gameTime.getElapsedTime();
 
 	float framerate = 1.0f / elapsed.asSeconds();
-	sprintf(fpsBuffer, "fps: %f", framerate);
+	sprintf_s(fpsBuffer, "fps: %f", framerate);
 	fpsCounter.setString(fpsBuffer);
 
 	scroll += ((character->getLocation() - sf::Vector2f(640.0f, 360.0f)) - scroll) * elapsed.asSeconds() * 20.0f;
@@ -50,8 +49,13 @@ void PlayTestScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	if (InputManager::instance().Pressed(sf::Keyboard::Escape))
 	{
 		EditorScreen *screen = new EditorScreen;
-		screen->SetMapData(map->segDef, map->mapSeg, map->ledges);
+		screen->SetMapData(map);
 		ScreenManager::GetInstance().AddScreen(screen);
+	}
+
+	if (InputManager::instance().Pressed(sf::Keyboard::L))
+	{
+		showLedges = !showLedges;
 	}
 }
 
@@ -60,6 +64,9 @@ void PlayTestScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 	map->Draw(Window, 0, 2, scroll);
 	character->Draw(Window, scroll);
 	map->Draw(Window, 3, 5, scroll);
+
+	if (showLedges)
+		map->DrawLedges(Window, scroll, -1);
 
 	fpsCounter.setColor(sf::Color(255,255,255,255));
 	fpsCounter.setPosition(10, 695);

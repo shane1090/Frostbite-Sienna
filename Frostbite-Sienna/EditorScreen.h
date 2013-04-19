@@ -5,12 +5,13 @@
 #include "SegmentDefinition.h"
 #include "MapSegment.h"
 #include "Ledge.h"
-#include "UI_SegmentPanel.h"
 #include "UI_SegmentInfoPanel.h"
 #include "UI_LedgePanel.h"
 #include "shobjidl.h"
 #include "InputManager.h"
 #include "PanelManager.h"
+#include "Map.h"
+#include "UI_SegmentPanel.h"
 
 class EditorScreen : public GameScreen
 {
@@ -22,17 +23,16 @@ public:
 	void UnloadContent();
 	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void Draw(sf::RenderWindow &window, sf::Clock &gameTime);
-	void DrawMap(sf::RenderWindow &Window);
 	void DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color);
 	void DrawToolBar(sf::RenderWindow &Window);
 	bool DrawButton(sf::RenderWindow &Window, int x, int y, int index);
-	void DrawLedges(sf::RenderWindow &Window);
 	void SaveMap();
 	void LoadMap();
-	void SetMapData(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges);
+	void SetMapData(Map *map);
 
 private:
-	void LoadSegmentDefinitions();
+	Map *map;
+	
 	void ResetMap();
 
 	int GetHoveredSegement(sf::Vector2<int> mousePos, int layer);
@@ -50,6 +50,8 @@ private:
 
 	sf::Vector2<float> scroll;
 
+	int tile;
+
 	int curLayer;
 	int mouseDragSegment, mouseHoverSegment, mouseSelectedSegment;
 	int mouseDragNode, mouseHoverNode, mouseSelectedNode;
@@ -59,7 +61,6 @@ private:
 
 	bool scrollMap;
 
-	SegmentPanel* segmentPanel;
 	SegmentInfoPanel* segmentInfoPanel;
 	LedgePanel* ledgePanel;
 
@@ -75,6 +76,7 @@ private:
 	sf::Vector2<int> mousePos, pMousePos;
 
 	PanelManager *panelManager;
+	Panel *segmentPane;
 };
 
 const COMDLG_FILTERSPEC c_rgSaveTypes[] =

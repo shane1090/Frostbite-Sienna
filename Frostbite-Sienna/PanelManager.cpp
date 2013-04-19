@@ -19,24 +19,30 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	{
 		if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 		{
-			// Drag handle
-			sf::Rect<float> dragHandle = panels[i]->position;
-			dragHandle.height = 25;
-			dragHandle.width = dragHandle.width;
-			if (dragHandle.contains(mousePos.x, mousePos.y))
+			if (panels[i]->isMoveable)
 			{
-				panels[i]->dragged = true;
+				// Drag handle
+				sf::Rect<float> dragHandle = panels[i]->position;
+				dragHandle.height = 25;
+				dragHandle.width = dragHandle.width;
+				if (dragHandle.contains(mousePos.x, mousePos.y))
+				{
+					panels[i]->dragged = true;
+				}
 			}
 
-			// Resize handle
-			sf::Rect<float> resizeHandle = panels[i]->position;
-			resizeHandle.left = (resizeHandle.left + resizeHandle.width) - 10;
-			resizeHandle.top = (resizeHandle.top + resizeHandle.height) - 10;
-			resizeHandle.height = 10;
-			resizeHandle.width = 10;
-			if (resizeHandle.contains(mousePos.x, mousePos.y))
+			if (panels[i]->isResizable)
 			{
-				panels[i]->resizing = true;
+				// Resize handle
+				sf::Rect<float> resizeHandle = panels[i]->position;
+				resizeHandle.left = (resizeHandle.left + resizeHandle.width) - 10;
+				resizeHandle.top = (resizeHandle.top + resizeHandle.height) - 10;
+				resizeHandle.height = 10;
+				resizeHandle.width = 10;
+				if (resizeHandle.contains(mousePos.x, mousePos.y))
+				{
+					panels[i]->resizing = true;
+				}
 			}
 		}
 
@@ -72,11 +78,25 @@ void PanelManager::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
 	for (int i = 0; i < panels.size(); i++)
 	{
-		panels[i]->Draw(Window, gameTime);
+		if (!panels[i]->minimized)
+			panels[i]->Draw(Window, gameTime);
 	}
 }
 
 void PanelManager::AddPanel(Panel *&panel)
 {
 	panels.push_back(panel);
+}
+
+bool PanelManager::CheckMouseHover(sf::Vector2<int> mousePos)
+{
+	for (int i = 0; i < panels.size(); i++)
+	{
+		if (!panels[i]->minimized)
+		{
+			if (panels[i]->position.contains(mousePos.x, mousePos.y))
+				return true;
+		}
+	}
+	return false;
 }

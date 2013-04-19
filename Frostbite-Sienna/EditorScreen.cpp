@@ -11,6 +11,8 @@ EditorScreen::EditorScreen(void)
 	zoomScale = 1.0f;
 	scrollMap = false;
 	drawingMode = SEGMENT_SELECTION;
+	tile = -1;
+	map = NULL;
 }
 
 EditorScreen::~EditorScreen(void)
@@ -20,28 +22,27 @@ EditorScreen::~EditorScreen(void)
 
 void EditorScreen::LoadContent()
 {
+	// Initiate map class
+	if (!map)
+	{
+		map = new Map;
+		map->LoadSegmentDefinitions();
+	}
+	
 	if (!font.loadFromFile("Assets/Fonts/arial.ttf"))
 		std::cout << "Could not find the specified font" << std::endl;
 
 	if (!toolbarIconsTex.loadFromFile("Assets/GUI/editor-icons.png"))
 		std::cout << "Could not load toolbar icons" << std::endl;
-	
-	if (segDef.size() == 0)
-	{
-		LoadSegmentDefinitions();
-	}
 
 	drawingMode = SEGMENT_SELECTION;
 
 	// Intiliase panelManager
 	panelManager = new PanelManager();
-	Panel *segmentPane = new Panel(sf::Rect<float>(200,200,250,200));
+	segmentPane = new UISegmentPanel(map, tile);
+	segmentPane->minimized = true;
 	panelManager->AddPanel(segmentPane);
 
-	Panel *ledgePane = new Panel(sf::Rect<float>(600,300,200,250));
-	panelManager->AddPanel(ledgePane);
-
-	segmentPanel = new SegmentPanel(segDef, mapSeg);
 	segmentInfoPanel = new SegmentInfoPanel(segDef, mapSeg);
 	segmentInfoPanel->LoadContent(font);
 
@@ -73,20 +74,39 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 		if (mousePos.y > 40)
 		{
-			if (!segmentPanel->panelRect.contains(mousePos.x, mousePos.y))
+			if (!panelManager->CheckMouseHover(mousePos))
 			{
-				mouseHoverSegment = GetHoveredSegement(mousePos, curLayer);
-			
-				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true) && mousePos.x < 900 && mouseDragSegment == -1)
-					if (mouseHoverSegment != -1)
-						mouseDragSegment = mouseHoverSegment;
-
-				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+				if (tile != -1)
 				{
-					if (mouseHoverSegment != -1) {
-						mouseSelectedSegment = mouseHoverSegment;
-					} else {
-						mouseSelectedSegment = -1;
+					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+					{
+						// Add segment here
+						sf::Vector2<float> position((mousePos.x + scroll.x), (mousePos.y + scroll.y));
+						std::cout << "Segment Added to Map: " << tile << std::endl;
+						map->mapSeg.push_back(new MapSegment(curLayer, tile, position, 0, sf::Vector2<float>(1.0f,1.0f)));
+
+						// Reset tile - this needs to change so multiple tiles can be placed
+						// but need to change the checks when placing them so they can be positioned over
+						// existing segments
+						tile = -1;
+					}
+				}
+				else
+				{
+
+					mouseHoverSegment = GetHoveredSegement(mousePos, curLayer);
+			
+					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true) && mousePos.x < SCREEN_WIDTH && mouseDragSegment == -1)
+						if (mouseHoverSegment != -1)
+							mouseDragSegment = mouseHoverSegment;
+
+					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+					{
+						if (mouseHoverSegment != -1) {
+							mouseSelectedSegment = mouseHoverSegment;
+						} else {
+							mouseSelectedSegment = -1;
+						}
 					}
 				}
 			} 
@@ -95,17 +115,16 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				mouseHoverSegment = -1;
 			}
 		
-		
 			if (mouseDragSegment > -1 && mouseSelectedSegment > -1)
 			{
 				if (InputManager::instance().Released(sf::Mouse::Button::Left, true))
 					mouseDragSegment = -1;
 				else
 				{
-					sf::Vector2<float> loc = mapSeg[mouseDragSegment]->position;
+					sf::Vector2<float> loc = map->mapSeg[mouseDragSegment]->position;
 					loc.x += (mousePos.x - pMousePos.x) / layerScales[curLayer];
 					loc.y += (mousePos.y - pMousePos.y) / layerScales[curLayer];
-					mapSeg[mouseDragSegment]->position = loc;
+					map->mapSeg[mouseDragSegment]->position = loc;
 				}
 			}
 
@@ -122,7 +141,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 			if (InputManager::instance().Pressed(sf::Keyboard::Delete))
 			{
 				std::cout << "Map segment deleted: " << mouseSelectedSegment << std::endl;
-				mapSeg.erase(mapSeg.begin()+mouseSelectedSegment);
+				map->mapSeg.erase(map->mapSeg.begin()+mouseSelectedSegment);
 				mouseSelectedSegment = -1;
 				mouseHoverSegment = -1;
 			}
@@ -133,20 +152,18 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 			// Allow rotation of segments
 			if (InputManager::instance().Pressed(sf::Keyboard::R))
 			{
-				float angle = atan2((mousePos.y - mapSeg[mouseSelectedSegment]->position.y) + scroll.y,
-								    (mousePos.x - mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
+				float angle = atan2((mousePos.y - map->mapSeg[mouseSelectedSegment]->position.y) + scroll.y,
+								    (mousePos.x - map->mapSeg[mouseSelectedSegment]->position.x) + scroll.x);
 
-				mapSeg[mouseSelectedSegment]->rotation = angle * (180.0f/M_PI);
+				map->mapSeg[mouseSelectedSegment]->rotation = angle * (180.0f/M_PI);
 			}
 
 			// Allow scaling of segments
 			if (InputManager::instance().Pressed(sf::Keyboard::S))
 			{
-				mapSeg[mouseSelectedSegment]->scale += sf::Vector2<float>((float)xM * 0.05f, (float)yM * 0.05f);
+				map->mapSeg[mouseSelectedSegment]->scale += sf::Vector2<float>((float)xM * 0.05f, (float)yM * 0.05f);
 			}
 		}
-
-		segmentPanel->Update();
 
 		break;
 	case LEDGES:
@@ -212,9 +229,14 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		scroll.y -= (mousePos.y - pMousePos.y) * 2.0f;
 	}
 
-	if (sf::Keyboard::isKeyPressed(sf::Keyboard::C))
+	if (InputManager::instance().Pressed(sf::Keyboard::C))
 	{
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
+	}
+
+	if (InputManager::instance().Pressed(sf::Keyboard::A))
+	{
+		segmentPane->minimized = !segmentPane->minimized;
 	}
 
 	panelManager->Update(Window, gameTime);
@@ -224,7 +246,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	DrawMap(Window);
+	map->Draw(Window, 0, 5, scroll);
 
 	switch (drawingMode)
 	{
@@ -235,14 +257,23 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 		if (mouseSelectedSegment > -1)
 		{
 			DrawSelectedSegment(Window, mouseSelectedSegment, sf::Color::Red);
-			segmentInfoPanel->Draw(Window, mouseSelectedSegment);
+			//segmentInfoPanel->Draw(Window, mouseSelectedSegment);
 		}
 
-		segmentPanel->Draw(curLayer, scroll, Window);
+		if (tile != -1)
+		{
+			sf::Sprite segSprite;
+			segSprite.setTexture(map->segDef[tile]->tex);
+			segSprite.setPosition(mousePos.x, mousePos.y);
+			segSprite.setScale((layerScales[curLayer] * zoomScale), (layerScales[curLayer] * zoomScale));
+			segSprite.setOrigin(map->segDef[tile]->width / 2, map->segDef[tile]->height / 2);
+			segSprite.setColor(sf::Color(255,255,255,100));
+			Window.draw(segSprite);
+		}
 		
 		break;
 	case LEDGES:
-		DrawLedges(Window);
+		map->DrawLedges(Window, scroll, curLedge);
 		ledgePanel->Draw(Window, curLedge);
 		break;
 	}
@@ -311,96 +342,19 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 	DrawToolBar(Window);
 }
 
-void EditorScreen::DrawMap(sf::RenderWindow &Window)
-{
-	for (int l = 0; l < layerScales.size(); l++)
-	{
-		for (int i = 0; i < mapSeg.size(); i++)
-		{
-			if (mapSeg[i]->layer == l)
-			{
-				sf::Rect<float> dRect;
-				dRect.left = (mapSeg[i]->position.x - scroll.x) * (layerScales[l] * zoomScale);
-				dRect.top = (mapSeg[i]->position.y - scroll.y) * (layerScales[l] * zoomScale);
-				dRect.width = (float)segDef[mapSeg[i]->segmentIndex]->width;
-				dRect.height = (float)segDef[mapSeg[i]->segmentIndex]->height;
-
-				sf::Sprite segSprite;
-				segSprite.setTexture(segDef[mapSeg[i]->segmentIndex]->tex);
-				segSprite.setPosition(dRect.left, dRect.top);
-				segSprite.setScale((layerScales[l] * zoomScale) * mapSeg[i]->scale.x, (layerScales[l] * zoomScale) * mapSeg[i]->scale.y);
-				segSprite.setOrigin(segDef[mapSeg[i]->segmentIndex]->width / 2, segDef[mapSeg[i]->segmentIndex]->height / 2);
-				segSprite.setRotation(mapSeg[i]->rotation);
-				Window.draw(segSprite);
-			}
-		}
-	}
-}
-
-void EditorScreen::DrawLedges(sf::RenderWindow &Window)
-{
-	sf::Rect<int> rect;
-	sf::Color tColor;
-
-	for (int i = 0; i < ledges.size(); i++)
-	{
-		if (ledges[i]->nodes.size() > 0)
-		{
-			for (int n = 0; n < ledges[i]->nodes.size(); n++)
-			{
-				sf::Vector2<float> tVec;
-				tVec = ledges[i]->nodes[n];
-				tVec -= scroll;
-				tVec.x -= 3.0f;
-				tVec.y -= 3.0f;
-				
-				// Change colour if ledge is selected
-				if (curLedge == i)
-					tColor = sf::Color::Yellow;
-				else
-					tColor = sf::Color::White;
-
-				sf::CircleShape circle;
-				circle.setRadius(6);
-				circle.setFillColor(tColor);
-				circle.setPosition(tVec.x, tVec.y);
-				Window.draw(circle);
-
-				if (n < ledges[i]->nodes.size() - 1)
-				{
-					sf::Vector2<float> nVec;
-					nVec = ledges[i]->nodes[n + 1];
-					nVec -= scroll;
-
-					float dx = nVec.x - tVec.x;
-					float dy = nVec.y - tVec.y;
-					float rot = atan2(dy, dx) * (180.0f/M_PI);
-					sf::RectangleShape line;
-					line.setSize(sf::Vector2f(std::sqrt(std::abs(dx)*std::abs(dx) + std::abs(dy)*std::abs(dy)), 2*2));
-					line.setOrigin(0, 2);
-					line.setPosition(tVec.x, tVec.y);
-					line.setRotation(rot);
-					line.setFillColor(tColor);
-					Window.draw(line);
-				}
-			}
-		}
-	}
-}
-
 void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf::Color color)
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = (mapSeg[segment]->position.x - scroll.x) * (layerScales[mapSeg[segment]->layer] * zoomScale);
-	dRect.top = (mapSeg[segment]->position.y - scroll.y) * (layerScales[mapSeg[segment]->layer] * zoomScale);
-	dRect.width = (float)segDef[mapSeg[segment]->segmentIndex]->width * (layerScales[mapSeg[segment]->layer] * zoomScale) * mapSeg[segment]->scale.x;
-	dRect.height = (float)segDef[mapSeg[segment]->segmentIndex]->height * (layerScales[mapSeg[segment]->layer] * zoomScale) * mapSeg[segment]->scale.y;
+	dRect.left = (map->mapSeg[segment]->position.x - scroll.x) * (layerScales[map->mapSeg[segment]->layer] * zoomScale);
+	dRect.top = (map->mapSeg[segment]->position.y - scroll.y) * (layerScales[map->mapSeg[segment]->layer] * zoomScale);
+	dRect.width = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->width * (layerScales[map->mapSeg[segment]->layer] * zoomScale) * map->mapSeg[segment]->scale.x;
+	dRect.height = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->height * (layerScales[map->mapSeg[segment]->layer] * zoomScale) * map->mapSeg[segment]->scale.y;
 
 
 	sf::RectangleShape segmentShape;
 	segmentShape.setPosition(dRect.left, dRect.top);
-	segmentShape.setRotation(mapSeg[segment]->rotation);
+	segmentShape.setRotation(map->mapSeg[segment]->rotation);
 	segmentShape.setOrigin(dRect.width / 2, dRect.height / 2);
 	
 	sf::Vector2<float> segmentSize(dRect.width, dRect.height);
@@ -492,7 +446,7 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	if (DrawButton(Window, x, 5 , 9)) // Test map
 	{
 		PlayTestScreen *screen = new PlayTestScreen;
-		screen->SetMapData(segDef, mapSeg, ledges);
+		screen->SetMapData(map);
 		ScreenManager::GetInstance().AddScreen(screen);
 	}
 
@@ -522,41 +476,22 @@ bool EditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, int index)
 	return r;
 }
 
-void EditorScreen::LoadSegmentDefinitions()
-{
-	tinyxml2::XMLDocument doc;
-	doc.LoadFile( "Tilesets/tileset01.xml" );
-
-	tinyxml2::XMLElement* root = doc.FirstChildElement( "tileset" );
-	for (tinyxml2::XMLElement* e = root->FirstChildElement( "tile" ); e; e = e->NextSiblingElement() )
-	{
-		// Todo add validation routines to stop buggy XML files being imported
-
-		int tileId = std::atoi(e->Attribute("id"));
-		std::string name = e->Attribute("name");
-		std::string filepath = e->Attribute("image");
-
-		segDef.push_back(new SegmentDefinition(name, filepath));
-		
-	}
-}
-
 int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 {
 	int hoveredSegment = -1;
 
-	for (int i = 0; i < mapSeg.size(); i++)
+	for (int i = 0; i < map->mapSeg.size(); i++)
 	{
-		if (mapSeg[i]->layer == layer)
+		if (map->mapSeg[i]->layer == layer)
 		{
 			sf::Rect<float> dRect(
-				((mapSeg[i]->position.x - scroll.x) * (layerScales[layer] * zoomScale)),
-				((mapSeg[i]->position.y - scroll.y) * (layerScales[layer] * zoomScale)),
-				(segDef[mapSeg[i]->segmentIndex]->width * (layerScales[layer] * zoomScale) * mapSeg[i]->scale.x),
-				(segDef[mapSeg[i]->segmentIndex]->height * (layerScales[layer] * zoomScale) * mapSeg[i]->scale.y));
+				((map->mapSeg[i]->position.x - scroll.x) * (layerScales[layer] * zoomScale)),
+				((map->mapSeg[i]->position.y - scroll.y) * (layerScales[layer] * zoomScale)),
+				(map->segDef[map->mapSeg[i]->segmentIndex]->width * (layerScales[layer] * zoomScale) * map->mapSeg[i]->scale.x),
+				(map->segDef[map->mapSeg[i]->segmentIndex]->height * (layerScales[layer] * zoomScale) * map->mapSeg[i]->scale.y));
 
-			float c = cos(-mapSeg[i]->rotation * M_PI / 180);
-			float s = sin(-mapSeg[i]->rotation * M_PI / 180);
+			float c = cos(-map->mapSeg[i]->rotation * M_PI / 180);
+			float s = sin(-map->mapSeg[i]->rotation * M_PI / 180);
 
 			float rotatedX = dRect.left + c * (mousePos.x - dRect.left) - s * (mousePos.y - dRect.top);
 			float rotatedY = dRect.top + s * (mousePos.x - dRect.left) + c * (mousePos.y - dRect.top);
@@ -616,53 +551,8 @@ void EditorScreen::SaveMap()
 					if (SUCCEEDED(hr))
 					{
 						std::string filePath = utf8_encode(pszFilePath);
-						char *a=new char[filePath.size()+1];
-						a[filePath.size()]=0;
-						memcpy(a,filePath.c_str(),filePath.size());
-
-						// XML file creation
-						tinyxml2::XMLDocument* doc = new tinyxml2::XMLDocument();
-						tinyxml2::XMLDeclaration* xdmap = doc->NewDeclaration();
-						doc->InsertEndChild(xdmap);
-
-						tinyxml2::XMLElement* xemap = doc->NewElement( "map" );
-						tinyxml2::XMLNode* xnmap = doc->InsertEndChild(xemap);
-
-						for (int i = 0; i < mapSeg.size(); i++)
-						{
-							tinyxml2::XMLElement* element = doc->NewElement( "segment" );
-							element->SetAttribute( "id", mapSeg[i]->segmentIndex );
-							element->SetAttribute( "x", mapSeg[i]->position.x );
-							element->SetAttribute( "y", mapSeg[i]->position.y );
-							element->SetAttribute( "layer", mapSeg[i]->layer );
-							element->SetAttribute( "physics", mapSeg[i]->physicsObject );
-							element->SetAttribute( "weight", mapSeg[i]->physicsWeight );
-							element->SetAttribute( "rotation", mapSeg[i]->rotation );
-							element->SetAttribute( "scalex", mapSeg[i]->scale.x );
-							element->SetAttribute( "scaley", mapSeg[i]->scale.y );
-
-							xemap->InsertEndChild(element);
-						}
-
-						tinyxml2::XMLElement* xeledges = doc->NewElement( "ledges" );
-						tinyxml2::XMLNode* xnledges = doc->InsertEndChild(xeledges);
-
-						for (int i = 0; i < ledges.size(); i++)
-						{
-							tinyxml2::XMLElement* xeledge = doc->NewElement( "ledge" );
-							xeledge->SetAttribute( "flag", ledges[i]->flags );
-							tinyxml2::XMLNode* xnledge = xeledges->InsertEndChild( xeledge );
-
-							for (int n = 0; n < ledges[i]->nodes.size(); n++)
-							{
-								tinyxml2::XMLElement* element = doc->NewElement( "node" );
-								element->SetAttribute( "x", ledges[i]->nodes[n].x );
-								element->SetAttribute( "y", ledges[i]->nodes[n].y );
-								xeledge->InsertEndChild(element);
-							}
-						}
-
-						doc->SaveFile(a);
+						
+						map->SaveMap(filePath);
 
 						CoTaskMemFree(pszFilePath);
 					}
@@ -710,66 +600,7 @@ void EditorScreen::LoadMap()
 						ResetMap();
 
 						std::string filePath = utf8_encode(pszFilePath);
-						char *a=new char[filePath.size()+1];
-						a[filePath.size()]=0;
-						memcpy(a,filePath.c_str(),filePath.size());
-
-						tinyxml2::XMLDocument doc;
-						doc.LoadFile(a);
-
-						tinyxml2::XMLElement* xemap = doc.FirstChildElement( "map" );
-						for (tinyxml2::XMLElement* e = xemap->FirstChildElement( "segment" ); e; e = e->NextSiblingElement() )
-						{
-							// Todo add validation routines to stop buggy XML files being imported
-
-							int layer = std::atoi(e->Attribute("layer"));
-							int segmentIndex = std::atoi(e->Attribute("id"));
-							int locX = std::atoi(e->Attribute("x"));
-							int locY = std::atoi(e->Attribute("y"));
-							float rotation = std::atof(e->Attribute("rotation"));
-							float scaleX = std::atof(e->Attribute("scalex"));
-							float scaleY = std::atof(e->Attribute("scaley"));
-
-							sf::Vector2<float> position(locX, locY);
-							sf::Vector2<float> scale(scaleX, scaleY);
-
-							if(segmentIndex < segDef.size()) {
-								std::cout << "Loading segment index: " << segmentIndex << std::endl;
-								mapSeg.push_back(new MapSegment(layer, segmentIndex, position, rotation, scale));
-							} else {
-								std::cout << "Cannot load segment index: " << segmentIndex << std::endl;
-							}
-						}
-
-						tinyxml2::XMLElement* xeledges = doc.FirstChildElement( "ledges" );
-
-						if (xeledges != NULL)
-						{
-							int i = 0;
-							for (tinyxml2::XMLElement* e = xeledges->FirstChildElement( "ledge" ); e; e = e->NextSiblingElement() )
-							{
-								ledges.push_back(new Ledge);
-							
-								int flag = std::atoi(e->Attribute("flag"));
-								ledges[i]->flags = flag;
-
-								std::cout << "Adding new ledge: " << i << std::endl;
-
-								for (tinyxml2::XMLElement* ee = e->FirstChildElement( "node" ); ee; ee = ee->NextSiblingElement() )
-								{
-									float locX = std::atof(ee->Attribute("x"));
-									float locY = std::atof(ee->Attribute("y"));
-									sf::Vector2<float> position(locX, locY);
-
-									ledges[i]->nodes.push_back(position);
-
-									std::cout << "Adding new node to ledge " << i << ": " << position.x << ", " << position.y << std::endl;
-								}
-
-								i++;
-							}
-						}
-
+						map->LoadMap(filePath);
 
 						CoTaskMemFree(pszFilePath);
 					}
@@ -785,20 +616,20 @@ void EditorScreen::LoadMap()
 void EditorScreen::ResetMap()
 {
 	// Empty mapSeg of all items
-	mapSeg.clear();
 	mouseDragSegment = -1;
 	mouseHoverSegment = -1;
 	mouseSelectedSegment = -1;
 	zoomScale = 1.0f;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	curLayer = 1;
-	ledges.clear();
+
+	map->ledges.clear();
+	map->mapSeg.clear();
+
 	curLedge = 0;
 }
 
-void EditorScreen::SetMapData(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges)
+void EditorScreen::SetMapData(Map *map)
 {
-	this->segDef = segDef;
-	this->mapSeg = mapSeg;
-	this->ledges = ledges;
+	this->map = map;
 }

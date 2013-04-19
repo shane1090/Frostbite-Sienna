@@ -1,139 +1,120 @@
 #include "stdafx.h"
 #include "UI_SegmentPanel.h"
 
-SegmentPanel::SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<MapSegment*> &mapSeg) : segDef(segDef), mapSeg(mapSeg)
+UISegmentPanel::UISegmentPanel(Map *&map, int &tile) : tile(tile), Panel()
 {
-	this->scrollRow = 0;
+	this->map = map;
+	this->position = sf::Rect<float>(220,85,830,575);
+	this->title = "Segments";
+	this->isMoveable = false;
+	this->isResizable = false;
 	this->offset = 0;
 
-	/*panelPos = sf::Vector2<int>(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
-							  SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING);
+	sf::FloatRect panelRect(position.left / 1280.f,
+							(position.top + 26) / 720.f,
+							(position.width - 15) / 1280.f,
+							(position.height - 26) / 720.f);
 
-	segmentSize = sf::Vector2<float>((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING + 10, 
-								   (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);*/
+	panelView.reset(sf::FloatRect(220,111,815,549));
+	panelView.setViewport(panelRect);
 
-	panelRect = sf::Rect<float>(SCREEN_WIDTH - (MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING - 10, 
-								SCREEN_HEIGHT - (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) - SEGMENT_PADDING, 
-								(MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING + 10, 
-								(MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
+	// Set scrolling min and max heights
+	sMin = 0;
+	sMax = (ceil((float)map->segDef.size() / 8.f) * (P_SEGMENT_PADDING + P_MAX_SEGMENT_SIZE) + P_SEGMENT_PADDING) - 549.f;
+	sPanelHeight = 549;
+	sTargetHeight = ceil((float)map->segDef.size() / 8.f) * (P_SEGMENT_PADDING + P_MAX_SEGMENT_SIZE) + P_SEGMENT_PADDING;
 }
 
-
-SegmentPanel::~SegmentPanel(void)
+UISegmentPanel::~UISegmentPanel(void)
 {
 
 }
 
-void SegmentPanel::Update()
+void UISegmentPanel::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	mousePos = InputManager::instance().getMousePosition();
-
-	if (mousePos.x > panelRect.left && mousePos.y > panelRect.top &&
-		mousePos.x < 1280 && mousePos.y < 720)
-	{
-		if ((InputManager::instance().mouseWheel() < 0) && ((offset * MAX_SEGMENT_COLS) + MAX_SEGMENTS < segDef.size()))
-		{
-			offset++;
-		} else if ((InputManager::instance().mouseWheel() > 0) && offset > 0)
-		{
-			offset--;
-		}
-	}
+	Panel::Update(Window, gameTime);
 }
 
-void SegmentPanel::Draw(int curLayer, sf::Vector2<float> scroll, sf::RenderWindow &Window)
+void UISegmentPanel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	sf::RectangleShape segmentShape;
-	segmentShape.setPosition(panelRect.left,panelRect.top);	
-	sf::Vector2<float> panelSize(panelRect.width, panelRect.height);
-	segmentShape.setSize(panelSize);
-	segmentShape.setFillColor(sf::Color(0,0,0,200));
-	Window.draw(segmentShape);
+	// Draw the panel first
+	Panel::Draw(Window, gameTime);
 
+	Window.setView(panelView);
+
+	// Then panel specific items on top
 	sf::Rect<int> dRect;
 	int curCol = 0;
 	int curRow = 0;
 	int t = 0;
 
 	// Draw segments
-	for (int i = 0; i < segDef.size(); i++)
+	for (int i = 0; i < map->segDef.size(); i++)
 	{
-		if (i >= (offset * MAX_SEGMENT_COLS) && t < MAX_SEGMENTS) {
-			dRect.left = panelRect.left + ((MAX_SEGMENT_SIZE + SEGMENT_PADDING) * curCol) + SEGMENT_PADDING;
-			dRect.top = panelRect.top + ((MAX_SEGMENT_SIZE + SEGMENT_PADDING) * curRow) + SEGMENT_PADDING;
-			dRect.width = segDef[i]->width;
-			dRect.height = segDef[i]->height;
+		//if (i >= (offset * P_MAX_SEGMENT_COLS) && t < P_MAX_SEGMENTS) {
+			dRect.left = (position.left + 200) + ((P_MAX_SEGMENT_SIZE + P_SEGMENT_PADDING) * curCol) + P_SEGMENT_PADDING;
+			dRect.top = (position.top + 25) + ((P_MAX_SEGMENT_SIZE + P_SEGMENT_PADDING) * curRow) + P_SEGMENT_PADDING - offset;
+			dRect.width = map->segDef[i]->width;
+			dRect.height = map->segDef[i]->height;
 
-			if (dRect.width > MAX_SEGMENT_SIZE)
+			sf::Vector2f itemPos(dRect.left, dRect.top);
+
+			if (dRect.width > P_MAX_SEGMENT_SIZE)
 			{
-				float ratio = (float)MAX_SEGMENT_SIZE / (float)dRect.width;
-				dRect.width = MAX_SEGMENT_SIZE;
+				float ratio = (float)P_MAX_SEGMENT_SIZE / (float)dRect.width;
+				dRect.width = P_MAX_SEGMENT_SIZE;
 				dRect.height = dRect.height * ratio;
 			}
 
-			if (dRect.height > MAX_SEGMENT_SIZE)
+			if (dRect.height > P_MAX_SEGMENT_SIZE)
 			{
-				float ratio = (float)MAX_SEGMENT_SIZE / (float)dRect.height;
+				float ratio = (float)P_MAX_SEGMENT_SIZE / (float)dRect.height;
 				dRect.width = dRect.width * ratio;
-				dRect.height = MAX_SEGMENT_SIZE;
+				dRect.height = P_MAX_SEGMENT_SIZE;
 			}
 
-			if (dRect.height < MAX_SEGMENT_SIZE)
-				dRect.top = dRect.top + (MAX_SEGMENT_SIZE - dRect.height) / 2;
+			if (dRect.height < P_MAX_SEGMENT_SIZE)
+				dRect.top = dRect.top + (P_MAX_SEGMENT_SIZE - dRect.height) / 2;
 
-			if (dRect.width < MAX_SEGMENT_SIZE)
-				dRect.left = dRect.left + (MAX_SEGMENT_SIZE - dRect.width) / 2;
+			if (dRect.width < P_MAX_SEGMENT_SIZE)
+				dRect.left = dRect.left + (P_MAX_SEGMENT_SIZE - dRect.width) / 2;
 
 			// Get sprite reference
 			sf::Sprite segSprite;
-			segSprite.setTexture(segDef[i]->tex);
-			segSprite.scale((float)dRect.width / segDef[i]->width, (float)dRect.height / segDef[i]->height);
+			segSprite.setTexture(map->segDef[i]->tex);
+			segSprite.scale((float)dRect.width / map->segDef[i]->width, (float)dRect.height / map->segDef[i]->height);
 			segSprite.setPosition((float)dRect.left, (float)dRect.top);
-			Window.draw(segSprite);
-
-			// This should be moved to Update
-			if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+			
+			if (mousePos.x > itemPos.x && mousePos.x < (itemPos.x + P_MAX_SEGMENT_SIZE) &&
+				mousePos.y > itemPos.y && mousePos.y < (itemPos.y + P_MAX_SEGMENT_SIZE))
 			{
-				if (mousePos.x > dRect.left && mousePos.x < (dRect.left + dRect.width) &&
-					mousePos.y > dRect.top && mousePos.y < (dRect.top + dRect.height))
+				// Draw panel background
+				sf::RectangleShape hoverRect;
+				hoverRect.setPosition(itemPos.x, itemPos.y);
+				hoverRect.setSize(sf::Vector2f(P_MAX_SEGMENT_SIZE, P_MAX_SEGMENT_SIZE));
+				hoverRect.setFillColor(sf::Color(255,255,255,255));
+				Window.draw(hoverRect);
+
+				// This should be moved to Update
+				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 				{
-					AddSegment(curLayer, i, scroll);
+					//SetSegment(i);
+					tile = i;
+					std::cout << "Tile set to: " << i << std::endl;
+					this->minimized = true;
 				}
 			}
 
+			Window.draw(segSprite);
+
 			t++;
 			curCol++;
-			if (curCol == MAX_SEGMENT_COLS) {
+			if (curCol == P_MAX_SEGMENT_COLS) {
 				curCol = 0;
 				curRow++;
 			}
-		}
+		//}
 	}
 
-	// Draw Scrollbar
-	int rows = ceil((float)segDef.size() / (float)MAX_SEGMENT_COLS) - (MAX_SEGMENT_ROWS - 1);
-	int scrollBarHeight = ceil(((MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING) / rows);
-	sf::Vector2<int> scrollPos(panelRect.left + ((MAX_SEGMENT_COLS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING),
-							   panelRect.top + (offset * scrollBarHeight));
-
-	sf::RectangleShape scrollBarShape;
-	scrollBarShape.setPosition(scrollPos.x, panelRect.top);
-	sf::Vector2<float> scrollBarSize(10, (MAX_SEGMENT_ROWS * (MAX_SEGMENT_SIZE + SEGMENT_PADDING)) + SEGMENT_PADDING);
-	scrollBarShape.setSize(scrollBarSize);
-	scrollBarShape.setFillColor(sf::Color(46,70,109,200));
-	Window.draw(scrollBarShape);
-	
-	sf::RectangleShape scrollBarHandleShape;
-	scrollBarHandleShape.setPosition(scrollPos.x, scrollPos.y);
-	sf::Vector2<float> scrollBarHandleSize(10, scrollBarHeight);
-	scrollBarHandleShape.setSize(scrollBarHandleSize);
-	scrollBarHandleShape.setFillColor(sf::Color(255,255,255,255));
-	Window.draw(scrollBarHandleShape);
-}
-
-void SegmentPanel::AddSegment(int layer, int index, sf::Vector2<float> scroll)
-{
-	sf::Vector2<float> position = scroll + sf::Vector2<float>(640.0f, 360.0f);
-	std::cout << "Segment Added to Map: " << index << std::endl; 
-	mapSeg.push_back(new MapSegment(layer, index, position, 0, sf::Vector2<float>(1.0f,1.0f)));
+	Window.setView(Window.getDefaultView());
 }

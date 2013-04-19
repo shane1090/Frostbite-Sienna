@@ -16,7 +16,7 @@ public:
 
 	void LoadContent();
 	void UnloadContent();
-	void SetMapData(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges);
+	void SetMapData(Map *map);
 	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void Draw(sf::RenderWindow &window, sf::Clock &gameTime);
 	void DrawMap(sf::RenderWindow &Window);
@@ -31,5 +31,7 @@ private:
 
 	char fpsBuffer[32];
 	sf::Text fpsCounter;
+
+	bool showLedges;
 };
 

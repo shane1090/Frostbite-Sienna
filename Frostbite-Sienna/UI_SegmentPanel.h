@@ -1,41 +1,23 @@
-#ifndef SEGMENTPANEL_H
-#define SEGMENTPANEL_H
+#pragma once
+#include "Panel.h"
+#include "Map.h"
 
-#include "SegmentDefinition.h"
-#include "MapSegment.h"
-#include "InputManager.h"
-
-class SegmentPanel
+class UISegmentPanel : public Panel
 {
 public:
-	SegmentPanel(std::vector<SegmentDefinition*> &segDef, std::vector<MapSegment*> &mapSeg);
-	~SegmentPanel(void);
-	void Draw(int curLayer, sf::Vector2<float> scroll, sf::RenderWindow &Window);
-	void Update();
-	void AddSegment(int layer, int index, sf::Vector2<float> scroll);
+	UISegmentPanel(Map *&map, int &tile);
+	~UISegmentPanel(void);
+	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
+	void Draw(sf::RenderWindow &Window, sf::Clock &gameTime);
 
-	/*sf::Vector2<int> panelPos;
-	sf::Vector2<float> segmentSize;*/
-
-	sf::Rect<float> panelRect;
-
-protected:
 private:
-	std::vector<SegmentDefinition*> &segDef;
-	std::vector<MapSegment*> &mapSeg;
-
-	int scrollRow;
-	int offset;
-
-	sf::Vector2<int> mousePos;
-
+	Map *map;
+	int& tile;
 };
 
-const int MAX_SEGMENT_COLS = 5;
-const int MAX_SEGMENT_ROWS = 5;
-const int MAX_SEGMENT_SIZE = 45;
-const int SEGMENT_PADDING = 10;
-const int MAX_SEGMENTS = MAX_SEGMENT_COLS * MAX_SEGMENT_ROWS;
-
-#endif // SEGMENTPANEL_H
+const int P_MAX_SEGMENT_COLS = 8;
+const int P_MAX_SEGMENT_ROWS = 7;
+const int P_MAX_SEGMENT_SIZE = 60;
+const int P_SEGMENT_PADDING = 15;
+const int P_MAX_SEGMENTS = P_MAX_SEGMENT_COLS * P_MAX_SEGMENT_ROWS;
 

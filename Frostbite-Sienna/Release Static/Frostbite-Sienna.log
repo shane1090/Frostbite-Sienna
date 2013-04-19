@@ -1,94 +1,10 @@
-﻿Build started 12/04/2013 21:32:54.
+﻿Build started 19/04/2013 00:33:24.
      1>Project "F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Frostbite-Sienna.vcxproj" on node 2 (Build target(s)).
      1>ClCompile:
-         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\SFML 2.0\Snapshot\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D SFML_STATIC /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release Static\\" /Fd"Release Static\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt Character.cpp EditorScreen.cpp GameScreen.cpp InputManager.cpp Main.cpp PlayTestScreen.cpp ScreenManager.cpp UI_LedgePanel.cpp UI_SegmentInfoPanel.cpp UI_SegmentPanel.cpp
-         Character.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>Character.cpp(55): warning C4018: '<' : signed/unsigned mismatch
-         EditorScreen.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>EditorScreen.cpp(66): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(129): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(148): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(153): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(298): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(312): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(325): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(329): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(349): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(357): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(434): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(441): warning C4244: '=' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(446): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(468): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(528): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(538): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(539): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(604): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(623): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(629): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(702): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(703): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(704): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(706): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>EditorScreen.cpp(709): warning C4018: '<' : signed/unsigned mismatch
-     1>EditorScreen.cpp(733): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-     1>EditorScreen.cpp(734): warning C4244: 'initializing' : conversion from 'double' to 'float', possible loss of data
-         GameScreen.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-         InputManager.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-         Main.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\CL.exe /c /I"C:\SFML 2.0\Snapshot\include" /Zi /nologo /W3 /WX- /sdl /O2 /Oi /Oy- /GL /D SFML_STATIC /D _UNICODE /D UNICODE /Gm- /EHsc /MT /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"Release Static\\" /Fd"Release Static\vc110.pdb" /Gd /TP /analyze- /errorReport:prompt PlayTestScreen.cpp
          PlayTestScreen.cpp
      1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
      1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-         ScreenManager.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-         UI_LedgePanel.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>UI_LedgePanel.cpp(29): warning C4018: '<' : signed/unsigned mismatch
-     1>UI_LedgePanel.cpp(38): warning C4018: '>' : signed/unsigned mismatch
-     1>UI_LedgePanel.cpp(58): warning C4018: '<' : signed/unsigned mismatch
-     1>UI_LedgePanel.cpp(61): warning C4244: 'initializing' : conversion from 'int' to 'float', possible loss of data
-     1>UI_LedgePanel.cpp(63): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_LedgePanel.cpp(88): warning C4244: 'argument' : conversion from 'unsigned int' to 'float', possible loss of data
-     1>UI_LedgePanel.cpp(95): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_LedgePanel.cpp(125): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>UI_LedgePanel.cpp(128): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_LedgePanel.cpp(135): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-         UI_SegmentInfoPanel.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(29): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(36): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(43): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(50): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(57): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(64): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentInfoPanel.cpp(73): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-         UI_SegmentPanel.cpp
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(30): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>f:\dropbox\game developement\frostbitesienna\frostbite-sienna\frostbite-sienna\stdafx.h(31): warning C4244: 'initializing' : conversion from 'float' to 'const int', possible loss of data
-     1>UI_SegmentPanel.cpp(34): warning C4018: '<' : signed/unsigned mismatch
-     1>UI_SegmentPanel.cpp(59): warning C4018: '<' : signed/unsigned mismatch
-     1>UI_SegmentPanel.cpp(62): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(63): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(71): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(77): warning C4244: '=' : conversion from 'float' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(114): warning C4244: 'initializing' : conversion from 'float' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(115): warning C4244: 'initializing' : conversion from 'double' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(117): warning C4244: 'argument' : conversion from 'float' to 'int', possible loss of data
-     1>UI_SegmentPanel.cpp(120): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentPanel.cpp(127): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
-     1>UI_SegmentPanel.cpp(128): warning C4244: 'argument' : conversion from 'int' to 'float', possible loss of data
        Link:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\link.exe /ERRORREPORT:PROMPT /OUT:"F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.exe" /INCREMENTAL:NO /NOLOGO /LIBPATH:"C:\SFML 2.0\Build\lib\Release" "sfml-system-s.lib" "sfml-main.lib" "sfml-graphics-s.lib" "sfml-audio-s.lib" "sfml-network-s.lib" "sfml-window-s.lib" kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.pdb" /SUBSYSTEM:WINDOWS /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"F:\Dropbox\Game Developement\FrostbiteSienna\Frostbite-Sienna\Frostbite-Sienna\Release Static\Frostbite-Sienna.lib" /MACHINE:X86 /SAFESEH "Release Static\Character.obj"
          "Release Static\EditorScreen.obj"
@@ -96,7 +12,10 @@
          "Release Static\InputManager.obj"
          "Release Static\Ledge.obj"
          "Release Static\Map.obj"
+         "Release Static\Panel.obj"
+         "Release Static\PanelManager.obj"
          "Release Static\PlayTestScreen.obj"
+         "Release Static\UISegmentPanel.obj"
          "Release Static\UI_LedgePanel.obj"
          "Release Static\Main.obj"
          "Release Static\GameScreen.obj"
@@ -113,4 +32,4 @@
 
 Build succeeded.
 
-Time Elapsed 00:00:11.90
+Time Elapsed 00:00:03.76
