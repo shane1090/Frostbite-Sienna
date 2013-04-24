@@ -44,6 +44,16 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 					panels[i]->resizing = true;
 				}
 			}
+
+			sf::Rect<float> closeHandle = panels[i]->position;
+			closeHandle.left = (closeHandle.left + closeHandle.width) - 24;
+			closeHandle.top = closeHandle.top + 1;
+			closeHandle.height = 23;
+			closeHandle.width = 23;
+			if (closeHandle.contains(mousePos.x, mousePos.y))
+			{
+				panels[i]->minimized = true;
+			}
 		}
 
 		if (InputManager::instance().Released(sf::Mouse::Button::Left, true))

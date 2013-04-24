@@ -8,7 +8,7 @@ class PanelManager
 public:
 	PanelManager(void);
 	~PanelManager(void);
-
+	void LoadContent();
 	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void Draw(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void AddPanel(Panel *&panel);

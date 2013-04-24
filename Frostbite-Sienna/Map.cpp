@@ -4,6 +4,7 @@
 Map::Map(void)
 {
 	zoomScale = 1.0f;
+	LoadDefaultLayers();
 }
 
 
@@ -117,6 +118,15 @@ void Map::DrawLedges(sf::RenderWindow &Window, sf::Vector2<float> &scroll, int c
 			}
 		}
 	}
+}
+
+void Map::LoadDefaultLayers()
+{
+	layers.push_back(new Layer("Background", .75f));
+	layers.push_back(new Layer("Close Background", 1.f));
+	layers.push_back(new Layer("Collision Layer", 1.f));
+	layers.push_back(new Layer("Close Foreground", 1.f));
+	layers.push_back(new Layer("Foreground", 1.25f));
 }
 
 void Map::LoadSegmentDefinitions()

@@ -3,12 +3,11 @@
 
 EditorScreen::EditorScreen(void)
 {
-	curLayer = 1;
+	curLayer = 2;
 	curLedge = 0;
 	mouseDragSegment = -1;
 	mouseSelectedSegment = -1;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f); // Set 0,0 to center of screen
-	zoomScale = 1.0f;
 	scrollMap = false;
 	drawingMode = SEGMENT_SELECTION;
 	tile = -1;
@@ -43,18 +42,12 @@ void EditorScreen::LoadContent()
 	segmentPane->minimized = true;
 	panelManager->AddPanel(segmentPane);
 
-	segmentInfoPanel = new SegmentInfoPanel(segDef, mapSeg);
-	segmentInfoPanel->LoadContent(font);
+	layerPane = new UILayerPanel(map, curLayer);
+	panelManager->AddPanel(layerPane);
 
-	ledgePanel = new LedgePanel(ledges);
-	ledgePanel->LoadContent(font);
-
-	// Set parallax scrolling scales for each layer
-	layerScales.push_back(0.75f);
-	layerScales.push_back(1.0f);
-	layerScales.push_back(1.0f);
-	layerScales.push_back(1.0f);
-	layerScales.push_back(1.25f);
+	ledgePane = new UILedgePanel(map, curLedge);
+	ledgePane->minimized = true;
+	panelManager->AddPanel(ledgePane);
 }
 
 void EditorScreen::UnloadContent()
@@ -81,7 +74,7 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 					{
 						// Add segment here
-						sf::Vector2<float> position((mousePos.x + scroll.x), (mousePos.y + scroll.y));
+						sf::Vector2<float> position(((mousePos.x / map->zoomScale) + scroll.x), (mousePos.y / map->zoomScale) + scroll.y);
 						std::cout << "Segment Added to Map: " << tile << std::endl;
 						map->mapSeg.push_back(new MapSegment(curLayer, tile, position, 0, sf::Vector2<float>(1.0f,1.0f)));
 
@@ -122,8 +115,8 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				else
 				{
 					sf::Vector2<float> loc = map->mapSeg[mouseDragSegment]->position;
-					loc.x += (mousePos.x - pMousePos.x) / layerScales[curLayer];
-					loc.y += (mousePos.y - pMousePos.y) / layerScales[curLayer];
+					loc.x += ((mousePos.x - pMousePos.x) / map->zoomScale) / map->layers[curLayer]->scale;
+					loc.y += ((mousePos.y - pMousePos.y) / map->zoomScale) / map->layers[curLayer]->scale;
 					map->mapSeg[mouseDragSegment]->position = loc;
 				}
 			}
@@ -165,21 +158,26 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 			}
 		}
 
+		if (InputManager::instance().Pressed(sf::Keyboard::A))
+		{
+			segmentPane->minimized = !segmentPane->minimized;
+		}
+
 		break;
 	case LEDGES:
 
 		if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 		{
 			if (mousePos.x > 0 && mousePos.x < SCREEN_WIDTH &&
-				mousePos.y > 40 && mousePos.y < 720 &&
-				!ledgePanel->panelRect.contains(mousePos.x, mousePos.y))
+				mousePos.y > 40 && mousePos.y < 720 && 
+				!panelManager->CheckMouseHover(mousePos))
 			{
-				if (ledges.size() == 0)
-					ledges.push_back(new Ledge);
+				if (map->ledges.size() == 0)
+					map->ledges.push_back(new Ledge);
 
 				sf::Vector2<float> nodePos = sf::Vector2<float>(mousePos.x, mousePos.y) + scroll;
 
-				ledges[curLedge]->nodes.push_back(nodePos);
+				map->ledges[curLedge]->nodes.push_back(nodePos);
 
 				std::cout << "Node added to ledge " << curLedge << ": " << nodePos.x << ", " << nodePos.y << std::endl;
 			}
@@ -188,29 +186,27 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		// Add new ledge
 		if (InputManager::instance().Pressed(sf::Keyboard::A))
 		{
-			ledges.push_back(new Ledge);
-			curLedge = ledges.size() - 1;
+			map->ledges.push_back(new Ledge);
+			curLedge = map->ledges.size() - 1;
 		}
 
 		// Allow deletion of nodes in ledges
 		if (InputManager::instance().Pressed(sf::Keyboard::Delete))
 		{
-			if (ledges[curLedge]->nodes.size() > 1)
+			if (map->ledges[curLedge]->nodes.size() > 1)
 			{
 				std::cout << "Ledge " << curLedge << " node deleted" << std::endl;
-				ledges[curLedge]->nodes.erase(ledges[curLedge]->nodes.end() - 1);
+				map->ledges[curLedge]->nodes.erase(map->ledges[curLedge]->nodes.end() - 1);
 				
 			} else {
-				ledges.erase(ledges.begin() + curLedge);
+				map->ledges.erase(map->ledges.begin() + curLedge);
 				std::cout << "Ledge " << curLedge << " deleted" << std::endl;
-				if (ledges.size())
+				if (map->ledges.size())
 					curLedge = curLedge - 1;
 				else
 					curLedge = -1;
 			}
 		}
-
-		ledgePanel->Update();
 
 		break;
 	}
@@ -229,14 +225,21 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		scroll.y -= (mousePos.y - pMousePos.y) * 2.0f;
 	}
 
+	// Zoom keyboard input
+	if (InputManager::instance().HeldDown(sf::Keyboard::Add))
+	{
+		map->zoomScale += 0.005;
+		if (map->zoomScale > 2.0f) map->zoomScale = 2.0f;
+	}
+	else if (InputManager::instance().HeldDown(sf::Keyboard::Subtract))
+	{
+		map->zoomScale -= 0.005f;
+		if (map->zoomScale < 0.1f) map->zoomScale = 0.1f;
+	}
+
 	if (InputManager::instance().Pressed(sf::Keyboard::C))
 	{
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
-	}
-
-	if (InputManager::instance().Pressed(sf::Keyboard::A))
-	{
-		segmentPane->minimized = !segmentPane->minimized;
 	}
 
 	panelManager->Update(Window, gameTime);
@@ -265,7 +268,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 			sf::Sprite segSprite;
 			segSprite.setTexture(map->segDef[tile]->tex);
 			segSprite.setPosition(mousePos.x, mousePos.y);
-			segSprite.setScale((layerScales[curLayer] * zoomScale), (layerScales[curLayer] * zoomScale));
+			segSprite.setScale((map->layers[curLayer]->scale * map->zoomScale), (map->layers[curLayer]->scale * map->zoomScale));
 			segSprite.setOrigin(map->segDef[tile]->width / 2, map->segDef[tile]->height / 2);
 			segSprite.setColor(sf::Color(255,255,255,100));
 			Window.draw(segSprite);
@@ -274,45 +277,10 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 		break;
 	case LEDGES:
 		map->DrawLedges(Window, scroll, curLedge);
-		ledgePanel->Draw(Window, curLedge);
 		break;
 	}
 
-	std::string layerName = "map";
-	switch (curLayer)
-	{
-	case 0:
-		layerName = "back";
-		break;
-	case 1:
-		layerName = "mid-back";
-		break;
-	case 2:
-		layerName = "mid-center";
-		break;
-	case 3:
-		layerName = "mid-fore";
-		break;
-	case 4:
-		layerName = "fore";
-		break;
-	}
-
-	curZoomLevelText.setString("Zoom Level: " + Convert(zoomScale));
-	curZoomLevelText.setColor(sf::Color(255,255,255,255));
-	curZoomLevelText.setPosition(10, 655);
-	curZoomLevelText.setFont(font);
-	curZoomLevelText.setCharacterSize(14);
-	Window.draw(curZoomLevelText);
-
-	curLayerText.setString("Current Layer: " + layerName);
-	curLayerText.setColor(sf::Color(255,255,255,255));
-	curLayerText.setPosition(10, 675);
-	curLayerText.setFont(font);
-	curLayerText.setCharacterSize(14);
-	Window.draw(curLayerText);
-
-	scrollPosText.setString("Mouse Position: " + Convert(((float)mousePos.x + scroll.x) / zoomScale) + "," + Convert(((float)mousePos.y + scroll.y) / zoomScale));
+	scrollPosText.setString("Mouse Position: " + Convert(((float)mousePos.x / map->zoomScale) + scroll.x) + "," + Convert(((float)mousePos.y / map->zoomScale) + scroll.y));
 	scrollPosText.setColor(sf::Color(255,255,255,255));
 	scrollPosText.setPosition(10, 695);
 	scrollPosText.setFont(font);
@@ -332,10 +300,21 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 	curDrawingMode.setString("Draw Mode: " + drawTypeName);
 	curDrawingMode.setColor(sf::Color(255,255,255,255));
-	curDrawingMode.setPosition(10, 635);
+	curDrawingMode.setPosition(10, 675);
 	curDrawingMode.setFont(font);
 	curDrawingMode.setCharacterSize(14);
 	Window.draw(curDrawingMode);
+
+	sf::CircleShape circle;
+	circle.setRadius(5);
+	circle.setOutlineColor(sf::Color::Red);
+	circle.setOutlineThickness(3);
+	circle.setOrigin(3,3);
+
+	sf::Vector2<float> centerPoint(.0f,.0f);
+
+	circle.setPosition(sf::Vector2f((centerPoint.x - scroll.x) * (1.0f * map->zoomScale), (centerPoint.y - scroll.y) * (1.0f * map->zoomScale)));
+	Window.draw(circle);
 
 	panelManager->Draw(Window, gameTime);
 
@@ -346,10 +325,10 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = (map->mapSeg[segment]->position.x - scroll.x) * (layerScales[map->mapSeg[segment]->layer] * zoomScale);
-	dRect.top = (map->mapSeg[segment]->position.y - scroll.y) * (layerScales[map->mapSeg[segment]->layer] * zoomScale);
-	dRect.width = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->width * (layerScales[map->mapSeg[segment]->layer] * zoomScale) * map->mapSeg[segment]->scale.x;
-	dRect.height = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->height * (layerScales[map->mapSeg[segment]->layer] * zoomScale) * map->mapSeg[segment]->scale.y;
+	dRect.left = (map->mapSeg[segment]->position.x - scroll.x) * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale);
+	dRect.top = (map->mapSeg[segment]->position.y - scroll.y) * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale);
+	dRect.width = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->width * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale) * map->mapSeg[segment]->scale.x;
+	dRect.height = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->height * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale) * map->mapSeg[segment]->scale.y;
 
 
 	sf::RectangleShape segmentShape;
@@ -395,25 +374,21 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 3)) // Layer change
 	{
-		curLayer = (curLayer + 1) % 5;
-		mouseSelectedSegment = -1;
-		mouseHoverSegment = -1;
-		mouseDragSegment = -1;
-		std::cout << "Layer changed to: " << curLayer << std::endl;
+		layerPane->minimized = false;
 	}
 
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 4)) // Zoom out
 	{
-		zoomScale = zoomScale - 0.05;
-		if (zoomScale < 0.1f) zoomScale = 0.1f;
+		map->zoomScale -= 0.05f;
+		if (map->zoomScale < 0.1f) map->zoomScale = 0.1f;
 	}
 
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 5)) // Zoom in
 	{
-		zoomScale = zoomScale + 0.05;
-		if (zoomScale > 2.0f) zoomScale = 2.0f;
+		map->zoomScale += 0.05;
+		if (map->zoomScale > 2.0f) map->zoomScale = 2.0f;
 	}
 
 	x = x + 40;
@@ -424,12 +399,15 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	if (DrawButton(Window, x, 5 , 6)) // Segment drawing mode
 	{
 		drawingMode = (drawingMode_t)SEGMENT_SELECTION;
+		ledgePane->minimized = true;
 	}
 
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 7)) // Ledge drawing mode
 	{
 		drawingMode = (drawingMode_t)LEDGES;
+		segmentPane->minimized = true;
+		ledgePane->minimized = false;
 	}
 
 	x = x + 35;
@@ -485,10 +463,10 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 		if (map->mapSeg[i]->layer == layer)
 		{
 			sf::Rect<float> dRect(
-				((map->mapSeg[i]->position.x - scroll.x) * (layerScales[layer] * zoomScale)),
-				((map->mapSeg[i]->position.y - scroll.y) * (layerScales[layer] * zoomScale)),
-				(map->segDef[map->mapSeg[i]->segmentIndex]->width * (layerScales[layer] * zoomScale) * map->mapSeg[i]->scale.x),
-				(map->segDef[map->mapSeg[i]->segmentIndex]->height * (layerScales[layer] * zoomScale) * map->mapSeg[i]->scale.y));
+				((map->mapSeg[i]->position.x - scroll.x) * (map->layers[layer]->scale * map->zoomScale)),
+				((map->mapSeg[i]->position.y - scroll.y) * (map->layers[layer]->scale * map->zoomScale)),
+				(map->segDef[map->mapSeg[i]->segmentIndex]->width * (map->layers[layer]->scale * map->zoomScale) * map->mapSeg[i]->scale.x),
+				(map->segDef[map->mapSeg[i]->segmentIndex]->height * (map->layers[layer]->scale * map->zoomScale) * map->mapSeg[i]->scale.y));
 
 			float c = cos(-map->mapSeg[i]->rotation * M_PI / 180);
 			float s = sin(-map->mapSeg[i]->rotation * M_PI / 180);
@@ -619,9 +597,9 @@ void EditorScreen::ResetMap()
 	mouseDragSegment = -1;
 	mouseHoverSegment = -1;
 	mouseSelectedSegment = -1;
-	zoomScale = 1.0f;
+	map->zoomScale = 1.0f;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
-	curLayer = 1;
+	curLayer = 2;
 
 	map->ledges.clear();
 	map->mapSeg.clear();

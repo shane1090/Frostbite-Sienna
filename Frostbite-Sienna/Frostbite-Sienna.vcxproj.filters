@@ -111,6 +111,12 @@
     <ClCompile Include="UI_SegmentPanel.cpp">
       <Filter>Source Files\UI\Panels</Filter>
     </ClCompile>
+    <ClCompile Include="UI_LayerPanel.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="Layer.cpp">
+      <Filter>Source Files\Map</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -166,6 +172,12 @@
     </ClInclude>
     <ClInclude Include="UI_SegmentPanel.h">
       <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_LayerPanel.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="Layer.h">
+      <Filter>Header Files\Map</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

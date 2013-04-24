@@ -6,17 +6,8 @@ UISegmentPanel::UISegmentPanel(Map *&map, int &tile) : tile(tile), Panel()
 	this->map = map;
 	this->position = sf::Rect<float>(220,85,830,575);
 	this->title = "Segments";
-	this->isMoveable = false;
 	this->isResizable = false;
 	this->offset = 0;
-
-	sf::FloatRect panelRect(position.left / 1280.f,
-							(position.top + 26) / 720.f,
-							(position.width - 15) / 1280.f,
-							(position.height - 26) / 720.f);
-
-	panelView.reset(sf::FloatRect(220,111,815,549));
-	panelView.setViewport(panelRect);
 
 	// Set scrolling min and max heights
 	sMin = 0;
@@ -33,6 +24,19 @@ UISegmentPanel::~UISegmentPanel(void)
 void UISegmentPanel::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
 	Panel::Update(Window, gameTime);
+
+	sf::FloatRect panelRect((position.left + 205) / 1280.f,
+							(position.top + 26) / 720.f,
+							(position.width - 215) / 1280.f,
+							(position.height - 26) / 720.f);
+
+	panelView.reset(sf::FloatRect(
+		(position.left + 205),
+		(position.top + 26),
+		(position.width - 215),
+		(position.height - 26)));
+	
+	panelView.setViewport(panelRect);
 }
 
 void UISegmentPanel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
@@ -52,7 +56,7 @@ void UISegmentPanel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 	for (int i = 0; i < map->segDef.size(); i++)
 	{
 		//if (i >= (offset * P_MAX_SEGMENT_COLS) && t < P_MAX_SEGMENTS) {
-			dRect.left = (position.left + 200) + ((P_MAX_SEGMENT_SIZE + P_SEGMENT_PADDING) * curCol) + P_SEGMENT_PADDING;
+			dRect.left = (position.left + 205) + ((P_MAX_SEGMENT_SIZE + P_SEGMENT_PADDING) * curCol) + P_SEGMENT_PADDING;
 			dRect.top = (position.top + 25) + ((P_MAX_SEGMENT_SIZE + P_SEGMENT_PADDING) * curRow) + P_SEGMENT_PADDING - offset;
 			dRect.width = map->segDef[i]->width;
 			dRect.height = map->segDef[i]->height;
@@ -84,24 +88,28 @@ void UISegmentPanel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 			segSprite.setTexture(map->segDef[i]->tex);
 			segSprite.scale((float)dRect.width / map->segDef[i]->width, (float)dRect.height / map->segDef[i]->height);
 			segSprite.setPosition((float)dRect.left, (float)dRect.top);
-			
-			if (mousePos.x > itemPos.x && mousePos.x < (itemPos.x + P_MAX_SEGMENT_SIZE) &&
-				mousePos.y > itemPos.y && mousePos.y < (itemPos.y + P_MAX_SEGMENT_SIZE))
-			{
-				// Draw panel background
-				sf::RectangleShape hoverRect;
-				hoverRect.setPosition(itemPos.x, itemPos.y);
-				hoverRect.setSize(sf::Vector2f(P_MAX_SEGMENT_SIZE, P_MAX_SEGMENT_SIZE));
-				hoverRect.setFillColor(sf::Color(255,255,255,255));
-				Window.draw(hoverRect);
 
-				// This should be moved to Update
-				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+			if (mousePos.x > (position.left + 205) && mousePos.x < (position.left + position.width) &&
+				mousePos.y > (position.top + 26) && mousePos.y < (position.top + position.height))
+			{
+				if (mousePos.x > itemPos.x && mousePos.x < (itemPos.x + P_MAX_SEGMENT_SIZE) &&
+					mousePos.y > itemPos.y && mousePos.y < (itemPos.y + P_MAX_SEGMENT_SIZE))
 				{
-					//SetSegment(i);
-					tile = i;
-					std::cout << "Tile set to: " << i << std::endl;
-					this->minimized = true;
+					// Draw panel background
+					sf::RectangleShape hoverRect;
+					hoverRect.setPosition(itemPos.x, itemPos.y);
+					hoverRect.setSize(sf::Vector2f(P_MAX_SEGMENT_SIZE, P_MAX_SEGMENT_SIZE));
+					hoverRect.setFillColor(sf::Color(255,255,255,255));
+					Window.draw(hoverRect);
+
+					// This should be moved to Update
+					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+					{
+						//SetSegment(i);
+						tile = i;
+						std::cout << "Tile set to: " << i << std::endl;
+						this->minimized = true;
+					}
 				}
 			}
 

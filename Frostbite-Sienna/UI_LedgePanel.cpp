@@ -2,139 +2,107 @@
 #include "UI_LedgePanel.h"
 
 
-LedgePanel::LedgePanel(std::vector<Ledge*> &ledges) : ledges(ledges)
+UILedgePanel::UILedgePanel(Map *&map, int &curLedge) : curLedge(curLedge), Panel()
 {
-	panelRect = sf::Rect<float>(985, 420, 295, 300);
-	offset = 0;
+	this->map = map;
+	this->title = "Ledges";
+	this->position = sf::Rect<float>(1020,410,250,300);
+	this->isResizable = false;
+
+	position.height = 45 + (map->ledges.size() * 20);
 }
 
 
-LedgePanel::~LedgePanel(void)
+UILedgePanel::~UILedgePanel(void)
 {
 
 }
 
-void LedgePanel::LoadContent(sf::Font &font)
+void UILedgePanel::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	this->font = font;
+	Panel::Update(Window, gameTime);
+	
+	position.height = 45 + (map->ledges.size() * 20);
 }
 
-void LedgePanel::Update()
+void UILedgePanel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	mousePos = InputManager::instance().getMousePosition();
+	// Draw the panel first
+	Panel::Draw(Window, gameTime);
 
-	if (mousePos.x > panelRect.left && mousePos.y > panelRect.top &&
-		mousePos.x < 1280 && mousePos.y < 720)
+	if (map->ledges.size() > 0)
 	{
-		if ((InputManager::instance().mouseWheel() < 0) && (offset + MAX_LEDGE_ROWS < ledges.size()))
+		// Draw ledge info
+		for (int i = 0; i < map->ledges.size(); i++)
 		{
-			offset++;
-		} else if ((InputManager::instance().mouseWheel() > 0) && offset > 0)
-		{
-			offset--;
-		}
-	}
-
-	if ((ledges.size() > MAX_LEDGE_ROWS) && (offset + MAX_LEDGE_ROWS > ledges.size()))
-		offset = (ledges.size() - MAX_LEDGE_ROWS);
-	else if ((ledges.size() <= MAX_LEDGE_ROWS) && offset > 0)
-		offset = 0;
-}
-
-void LedgePanel::Draw(sf::RenderWindow &Window, int &curLedge)
-{
-	sf::RectangleShape panelShape;
-	panelShape.setPosition(panelRect.left, panelRect.top);
-	sf::Vector2<float> panelSize(panelRect.width, panelRect.height);
-	panelShape.setSize(panelSize);
-	panelShape.setFillColor(sf::Color(0,0,0,200));
-	Window.draw(panelShape);
-
-	sf::Color tColor;
-
-	int curRow = 0;
-	int t = 0;
-
-	for (int i = 0; i < ledges.size(); i++)
-	{
-		if (i >= offset && t < MAX_LEDGE_ROWS) {
-			float y = t * 20;
-		
-			text.setString("Ledge Group " + Convert(i + 1));
-			text.setPosition(panelRect.left + 10, panelRect.top + 10 + y);
-			text.setFont(font);
-			text.setCharacterSize(14);
+			
+			sf::CircleShape circle;
+			circle.setRadius(5);
+			circle.setOutlineColor(sf::Color::White);
+			circle.setOutlineThickness(1);
+			circle.setFillColor(sf::Color(94, 103, 113, 255));
+			circle.setPosition(position.left + 10, position.top + 35 + (20 * i) + 3);
+			Window.draw(circle);
 
 			if (curLedge == i)
-				tColor = sf::Color::Yellow;
-			else
-				tColor = sf::Color::White;
+			{
+				sf::CircleShape circle;
+				circle.setRadius(3);
+				circle.setFillColor(sf::Color::White);
+				circle.setPosition(position.left + 12, position.top + 35 + (20 * i) + 5);
+				Window.draw(circle);
+			}
 
 			// This should be moved to Update
-			if (mousePos.x > panelRect.left + 10 && mousePos.x < panelRect.left + 120 &&
-				mousePos.y > panelRect.top + 10 + y && mousePos.y < panelRect.top + 10 + y + 14)
+			if (mousePos.x > position.left && mousePos.x < position.left + position.width &&
+				mousePos.y > position.top + 35 + (20 * i) && mousePos.y < position.top + 35 + (20 * i) + 14)
 			{
-				tColor = sf::Color::Red;
+				if (curLedge != i)
+				{
+					sf::CircleShape circle;
+					circle.setRadius(3);
+					circle.setFillColor(sf::Color::White);
+					circle.setPosition(position.left + 12, position.top + 35 + (20 * i) + 5);
+					Window.draw(circle);
+				}
 
 				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 				{
 					curLedge = i;
 				}
 			}
-
-			text.setColor(tColor);
+			
+			text.setString("Ledge Group " + Convert(i));
+			text.setPosition(position.left + 30, position.top + 35 + (20 * i));
+			text.setFont(font);
+			text.setCharacterSize(12);
+			text.setColor(sf::Color::White);
 			Window.draw(text);
 
-			text.setString("n " + Convert(ledges[i]->nodes.size()));
-			text.setPosition(panelRect.left + 155, panelRect.top + 10 + y);
+			text.setString("n " + Convert(map->ledges[i]->nodes.size()));
+			text.setPosition(position.left + 155, position.top + 35 + (20 * i));
 			text.setFont(font);
-			text.setCharacterSize(14);
-			text.setColor(tColor);
+			text.setCharacterSize(12);
+			text.setColor(sf::Color::White);
 			Window.draw(text);
 
-			text.setString("f " + Convert(ledges[i]->flags));
-			text.setPosition(panelRect.left + 230, panelRect.top + 10 + y);
+			text.setString("f " + Convert(map->ledges[i]->flags));
+			text.setPosition(position.left + 215, position.top + 35 + (20 * i));
 			text.setFont(font);
-			text.setCharacterSize(14);
-			text.setColor(tColor);
+			text.setCharacterSize(12);
+			text.setColor(sf::Color::White);
 			Window.draw(text);
 
 			// This should be moved to Update
-			if (mousePos.x > panelRect.left + 230 && mousePos.x < panelRect.left + 285 &&
-				mousePos.y > panelRect.top + 10 + y && mousePos.y < panelRect.top + 10 + y + 14)
+			if (mousePos.x > position.left + 215 && mousePos.x < position.left + position.width &&
+				mousePos.y > position.top + 35 + (20 * i) && mousePos.y < position.top + 35 + (20 * i) + 14)
 			{
 				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 				{
 					curLedge = i;
-					ledges[i]->flags = (ledges[i]->flags + 1) % 2;
+					map->ledges[i]->flags = (map->ledges[i]->flags + 1) % 2;
 				}
 			}
-
-			t++;
-			curRow++;
 		}
 	}
-
-	// Draw Scrollbar
-	int rows = ledges.size();
-	float rowheight = ((100.0f / rows) / 100.0f) * panelRect.height;
-
-	scrollBarHeight = rowheight * (float)MAX_LEDGE_ROWS;
-	
-	sf::Vector2<int> scrollPos(SCREEN_WIDTH - 10,
-							   panelRect.top + (offset * rowheight));
-
-	sf::RectangleShape scrollBarShape;
-	scrollBarShape.setPosition(scrollPos.x, panelRect.top);
-	sf::Vector2<float> scrollBarSize(10, panelRect.height);
-	scrollBarShape.setSize(scrollBarSize);
-	scrollBarShape.setFillColor(sf::Color(46,70,109,200));
-	Window.draw(scrollBarShape);
-	
-	sf::RectangleShape scrollBarHandleShape;
-	scrollBarHandleShape.setPosition(scrollPos.x, scrollPos.y);
-	sf::Vector2<float> scrollBarHandleSize(10, scrollBarHeight);
-	scrollBarHandleShape.setSize(scrollBarHandleSize);
-	scrollBarHandleShape.setFillColor(sf::Color(255,255,255,255));
-	Window.draw(scrollBarHandleShape);
 }

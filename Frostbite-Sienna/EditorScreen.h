@@ -12,6 +12,8 @@
 #include "PanelManager.h"
 #include "Map.h"
 #include "UI_SegmentPanel.h"
+#include "UI_LayerPanel.h"
+#include "UI_LedgePanel.h"
 
 class EditorScreen : public GameScreen
 {
@@ -40,11 +42,6 @@ private:
 
 	sf::Font font;
 
-	std::vector<SegmentDefinition*> segDef;
-	std::vector<MapSegment*> mapSeg;
-	std::vector<Ledge*> ledges;
-	std::vector<float> layerScales;
-
 	enum drawingMode_t { SEGMENT_SELECTION, LEDGES, DMODE_LAST };
 	drawingMode_t drawingMode;
 
@@ -61,9 +58,6 @@ private:
 
 	bool scrollMap;
 
-	SegmentInfoPanel* segmentInfoPanel;
-	LedgePanel* ledgePanel;
-
 	// Text elements
 	sf::Text scrollPosText, curLayerText, curZoomLevelText, curDrawingMode;
 
@@ -71,12 +65,12 @@ private:
 
 	std::string curFile;
 
-	float zoomScale;
-
 	sf::Vector2<int> mousePos, pMousePos;
 
 	PanelManager *panelManager;
 	Panel *segmentPane;
+	Panel *layerPane;
+	Panel *ledgePane;
 };
 
 const COMDLG_FILTERSPEC c_rgSaveTypes[] =

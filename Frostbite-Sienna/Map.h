@@ -3,6 +3,7 @@
 #include "SegmentDefinition.h"
 #include "MapSegment.h"
 #include "Ledge.h"
+#include "Layer.h"
 
 class Map
 {
@@ -13,6 +14,7 @@ public:
 	int GetLedgeSec(int l, float x);
 	float GetLedgeYLoc(int l, int i, float x);
 	void LoadSegmentDefinitions();
+	void LoadDefaultLayers();
 	void LoadMap(std::string filePath);
 	void SaveMap(std::string filePath);
 	void LoadConfig(std::vector<SegmentDefinition*> segDef, std::vector<MapSegment*> mapSeg, std::vector<Ledge*> ledges);
@@ -22,8 +24,11 @@ public:
 	std::vector<SegmentDefinition*> segDef;
 	std::vector<MapSegment*> mapSeg;
 	std::vector<Ledge*> ledges;
+	std::vector<Layer*> layers;
+
+	float zoomScale;
 
 private:
-	float zoomScale;
+	
 };
 

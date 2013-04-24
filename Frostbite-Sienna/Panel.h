@@ -22,13 +22,13 @@ public:
 	int offset;
 	int sMin, sMax;
 	float sPanelHeight, sTargetHeight;
+	sf::Font font;
 
 protected:
 	sf::Vector2<int> mousePos, pMousePos;
 
 private:
 	sf::Text panelTitle;
-	sf::Font font;
 
 	float scrollbarPercentage;
 	float scrollHandleHeight;
