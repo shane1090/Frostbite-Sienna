@@ -26,8 +26,6 @@ public:
 	std::vector<Ledge*> ledges;
 	std::vector<Layer*> layers;
 
-	float zoomScale;
-
 private:
 	
 };

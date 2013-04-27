@@ -3,7 +3,6 @@
 
 Map::Map(void)
 {
-	zoomScale = 1.0f;
 	LoadDefaultLayers();
 }
 
@@ -37,30 +36,20 @@ void Map::Draw(sf::RenderWindow &Window, int startLayer, int endLayer, sf::Vecto
 {
 	for (int l = startLayer; l < endLayer; l++)
 	{
-		float scale = 1.0f;
-		if (l == 0)
-		{
-			scale = 0.75f;
-		}
-		else if (l == 4)
-		{
-			scale = 1.25f;
-		}
-
 		for (int i = 0; i < mapSeg.size(); i++)
 		{
 			if (mapSeg[i]->layer == l)
 			{
 				sf::Rect<float> dRect;
-				dRect.left = (mapSeg[i]->position.x - scroll.x) * (scale * zoomScale);
-				dRect.top = (mapSeg[i]->position.y - scroll.y) * (scale * zoomScale);
+				dRect.left = (mapSeg[i]->position.x - scroll.x) * layers[mapSeg[i]->layer]->scale;
+				dRect.top = (mapSeg[i]->position.y - scroll.y) * layers[mapSeg[i]->layer]->scale;
 				dRect.width = (float)segDef[mapSeg[i]->segmentIndex]->width;
 				dRect.height = (float)segDef[mapSeg[i]->segmentIndex]->height;
 
 				sf::Sprite segSprite;
 				segSprite.setTexture(segDef[mapSeg[i]->segmentIndex]->tex);
 				segSprite.setPosition(dRect.left, dRect.top);
-				segSprite.setScale((scale * zoomScale) * mapSeg[i]->scale.x, (scale * zoomScale) * mapSeg[i]->scale.y);
+				segSprite.setScale(mapSeg[i]->scale.x, mapSeg[i]->scale.y);
 				segSprite.setOrigin(segDef[mapSeg[i]->segmentIndex]->width / 2, segDef[mapSeg[i]->segmentIndex]->height / 2);
 				segSprite.setRotation(mapSeg[i]->rotation);
 				Window.draw(segSprite);

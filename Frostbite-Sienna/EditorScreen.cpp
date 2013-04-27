@@ -74,7 +74,9 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 					{
 						// Add segment here
-						sf::Vector2<float> position(((mousePos.x / map->zoomScale) + scroll.x), (mousePos.y / map->zoomScale) + scroll.y);
+						sf::Vector2<float> position(mousePos.x + (scroll.x * map->layers[curLayer]->scale), mousePos.y + (scroll.y * map->layers[curLayer]->scale));
+						std::cout << "Mouse Position: " << position.x << ", " << position.y << std::endl;
+
 						std::cout << "Segment Added to Map: " << tile << std::endl;
 						map->mapSeg.push_back(new MapSegment(curLayer, tile, position, 0, sf::Vector2<float>(1.0f,1.0f)));
 
@@ -115,8 +117,8 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				else
 				{
 					sf::Vector2<float> loc = map->mapSeg[mouseDragSegment]->position;
-					loc.x += ((mousePos.x - pMousePos.x) / map->zoomScale) / map->layers[curLayer]->scale;
-					loc.y += ((mousePos.y - pMousePos.y) / map->zoomScale) / map->layers[curLayer]->scale;
+					loc.x += (mousePos.x - pMousePos.x) / map->layers[curLayer]->scale;
+					loc.y += (mousePos.y - pMousePos.y) / map->layers[curLayer]->scale;
 					map->mapSeg[mouseDragSegment]->position = loc;
 				}
 			}
@@ -225,18 +227,6 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		scroll.y -= (mousePos.y - pMousePos.y) * 2.0f;
 	}
 
-	// Zoom keyboard input
-	if (InputManager::instance().HeldDown(sf::Keyboard::Add))
-	{
-		map->zoomScale += 0.005;
-		if (map->zoomScale > 2.0f) map->zoomScale = 2.0f;
-	}
-	else if (InputManager::instance().HeldDown(sf::Keyboard::Subtract))
-	{
-		map->zoomScale -= 0.005f;
-		if (map->zoomScale < 0.1f) map->zoomScale = 0.1f;
-	}
-
 	if (InputManager::instance().Pressed(sf::Keyboard::C))
 	{
 		scroll = sf::Vector2<float>(-640.0f, -360.0f);
@@ -268,7 +258,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 			sf::Sprite segSprite;
 			segSprite.setTexture(map->segDef[tile]->tex);
 			segSprite.setPosition(mousePos.x, mousePos.y);
-			segSprite.setScale((map->layers[curLayer]->scale * map->zoomScale), (map->layers[curLayer]->scale * map->zoomScale));
+			segSprite.setScale(1.0f, 1.0f);
 			segSprite.setOrigin(map->segDef[tile]->width / 2, map->segDef[tile]->height / 2);
 			segSprite.setColor(sf::Color(255,255,255,100));
 			Window.draw(segSprite);
@@ -280,7 +270,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 		break;
 	}
 
-	scrollPosText.setString("Mouse Position: " + Convert(((float)mousePos.x / map->zoomScale) + scroll.x) + "," + Convert(((float)mousePos.y / map->zoomScale) + scroll.y));
+	scrollPosText.setString("Mouse Position: " + Convert((float)mousePos.x + scroll.x) + "," + Convert((float)mousePos.y + scroll.y));
 	scrollPosText.setColor(sf::Color(255,255,255,255));
 	scrollPosText.setPosition(10, 695);
 	scrollPosText.setFont(font);
@@ -313,7 +303,7 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 	sf::Vector2<float> centerPoint(.0f,.0f);
 
-	circle.setPosition(sf::Vector2f((centerPoint.x - scroll.x) * (1.0f * map->zoomScale), (centerPoint.y - scroll.y) * (1.0f * map->zoomScale)));
+	circle.setPosition(sf::Vector2f(centerPoint.x - scroll.x, centerPoint.y - scroll.y));
 	Window.draw(circle);
 
 	panelManager->Draw(Window, gameTime);
@@ -325,10 +315,10 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = (map->mapSeg[segment]->position.x - scroll.x) * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale);
-	dRect.top = (map->mapSeg[segment]->position.y - scroll.y) * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale);
-	dRect.width = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->width * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale) * map->mapSeg[segment]->scale.x;
-	dRect.height = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->height * (map->layers[map->mapSeg[segment]->layer]->scale * map->zoomScale) * map->mapSeg[segment]->scale.y;
+	dRect.left = (map->mapSeg[segment]->position.x - scroll.x) * map->layers[map->mapSeg[segment]->layer]->scale;
+	dRect.top = (map->mapSeg[segment]->position.y - scroll.y) * map->layers[map->mapSeg[segment]->layer]->scale;
+	dRect.width = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->width * map->mapSeg[segment]->scale.x;
+	dRect.height = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->height * map->mapSeg[segment]->scale.y;
 
 
 	sf::RectangleShape segmentShape;
@@ -377,7 +367,7 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 		layerPane->minimized = false;
 	}
 
-	x = x + 35;
+	/*x = x + 35;
 	if (DrawButton(Window, x, 5 , 4)) // Zoom out
 	{
 		map->zoomScale -= 0.05f;
@@ -389,7 +379,7 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	{
 		map->zoomScale += 0.05;
 		if (map->zoomScale > 2.0f) map->zoomScale = 2.0f;
-	}
+	}*/
 
 	x = x + 40;
 	toolbarSpacer.setPosition(x, 5);
@@ -463,10 +453,10 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 		if (map->mapSeg[i]->layer == layer)
 		{
 			sf::Rect<float> dRect(
-				((map->mapSeg[i]->position.x - scroll.x) * (map->layers[layer]->scale * map->zoomScale)),
-				((map->mapSeg[i]->position.y - scroll.y) * (map->layers[layer]->scale * map->zoomScale)),
-				(map->segDef[map->mapSeg[i]->segmentIndex]->width * (map->layers[layer]->scale * map->zoomScale) * map->mapSeg[i]->scale.x),
-				(map->segDef[map->mapSeg[i]->segmentIndex]->height * (map->layers[layer]->scale * map->zoomScale) * map->mapSeg[i]->scale.y));
+				((map->mapSeg[i]->position.x - scroll.x) * map->layers[layer]->scale),
+				((map->mapSeg[i]->position.y - scroll.y) * map->layers[layer]->scale),
+				(map->segDef[map->mapSeg[i]->segmentIndex]->width * map->mapSeg[i]->scale.x),
+				(map->segDef[map->mapSeg[i]->segmentIndex]->height * map->mapSeg[i]->scale.y));
 
 			float c = cos(-map->mapSeg[i]->rotation * M_PI / 180);
 			float s = sin(-map->mapSeg[i]->rotation * M_PI / 180);
@@ -597,7 +587,6 @@ void EditorScreen::ResetMap()
 	mouseDragSegment = -1;
 	mouseHoverSegment = -1;
 	mouseSelectedSegment = -1;
-	map->zoomScale = 1.0f;
 	scroll = sf::Vector2<float>(-640.0f, -360.0f);
 	curLayer = 2;
 
