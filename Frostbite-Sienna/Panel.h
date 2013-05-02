@@ -11,8 +11,6 @@ public:
 	virtual void Draw(sf::RenderWindow &Window, sf::Clock &gameTime);
 	sf::Rect<float> position;
 	std::string title;
-	bool dragged;
-	bool resizing;
 	bool isMoveable;
 	bool isResizable;
 	bool minimized;

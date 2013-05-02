@@ -3,7 +3,8 @@
 
 PanelManager::PanelManager(void)
 {
-
+	draggedPanel = -1;
+	resizingPanel = -1;
 }
 
 PanelManager::~PanelManager(void)
@@ -27,7 +28,7 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				dragHandle.width = dragHandle.width;
 				if (dragHandle.contains(mousePos.x, mousePos.y))
 				{
-					panels[i]->dragged = true;
+					draggedPanel = i;
 				}
 			}
 
@@ -41,7 +42,7 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				resizeHandle.width = 10;
 				if (resizeHandle.contains(mousePos.x, mousePos.y))
 				{
-					panels[i]->resizing = true;
+					resizingPanel = i;
 				}
 			}
 
@@ -55,30 +56,29 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				panels[i]->minimized = true;
 			}
 		}
-
-		if (InputManager::instance().Released(sf::Mouse::Button::Left, true))
-		{
-			panels[i]->dragged = false;
-			panels[i]->resizing = false;
-		}
-		else
-		{
-			sf::Rect<float> position = panels[i]->position;
-
-			if (panels[i]->dragged)
-			{
-				position.left += (mousePos.x - pMousePos.x);
-				position.top += (mousePos.y - pMousePos.y);
-				panels[i]->position = position;
-			} else if (panels[i]->resizing)
-			{
-				position.width += (mousePos.x - pMousePos.x);
-				position.height += (mousePos.y - pMousePos.y);
-				panels[i]->position = position;
-			}
-		}
-
 		panels[i]->Update(Window,gameTime);
+	}
+
+	if (InputManager::instance().Released(sf::Mouse::Button::Left, true))
+	{
+		draggedPanel = -1;
+		resizingPanel = -1;
+	}
+	else
+	{
+		if (draggedPanel != -1)
+		{
+			sf::Rect<float> position = panels[draggedPanel]->position;
+			position.left += (mousePos.x - pMousePos.x);
+			position.top += (mousePos.y - pMousePos.y);
+			panels[draggedPanel]->position = position;
+		} else if (resizingPanel != -1)
+		{
+			sf::Rect<float> position = panels[resizingPanel]->position;
+			position.width += (mousePos.x - pMousePos.x);
+			position.height += (mousePos.y - pMousePos.y);
+			panels[resizingPanel]->position = position;
+		}
 	}
 
 	pMousePos = mousePos;

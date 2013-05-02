@@ -74,7 +74,14 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 					if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 					{
 						// Add segment here
-						sf::Vector2<float> position(mousePos.x + (scroll.x * map->layers[curLayer]->scale), mousePos.y + (scroll.y * map->layers[curLayer]->scale));
+						sf::Vector2<float> position((float)mousePos.x + scroll.x, (float)mousePos.y + scroll.y);
+
+						if (map->layers[curLayer]->scale != 1.0f)
+						{
+							position.x += ((float)mousePos.x - ((float)mousePos.x * map->layers[curLayer]->scale));
+							position.y += ((float)mousePos.y - ((float)mousePos.y * map->layers[curLayer]->scale));
+						}
+
 						std::cout << "Mouse Position: " << position.x << ", " << position.y << std::endl;
 
 						std::cout << "Segment Added to Map: " << tile << std::endl;
@@ -117,8 +124,8 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				else
 				{
 					sf::Vector2<float> loc = map->mapSeg[mouseDragSegment]->position;
-					loc.x += (mousePos.x - pMousePos.x) / map->layers[curLayer]->scale;
-					loc.y += (mousePos.y - pMousePos.y) / map->layers[curLayer]->scale;
+					loc.x += (mousePos.x - pMousePos.x);
+					loc.y += (mousePos.y - pMousePos.y);
 					map->mapSeg[mouseDragSegment]->position = loc;
 				}
 			}
@@ -315,8 +322,8 @@ void EditorScreen::DrawSelectedSegment(sf::RenderWindow &Window, int segment, sf
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = (map->mapSeg[segment]->position.x - scroll.x) * map->layers[map->mapSeg[segment]->layer]->scale;
-	dRect.top = (map->mapSeg[segment]->position.y - scroll.y) * map->layers[map->mapSeg[segment]->layer]->scale;
+	dRect.left = map->mapSeg[segment]->position.x - (scroll.x * map->layers[map->mapSeg[segment]->layer]->scale);
+	dRect.top = map->mapSeg[segment]->position.y - (scroll.y * map->layers[map->mapSeg[segment]->layer]->scale);
 	dRect.width = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->width * map->mapSeg[segment]->scale.x;
 	dRect.height = (float)map->segDef[map->mapSeg[segment]->segmentIndex]->height * map->mapSeg[segment]->scale.y;
 
@@ -453,8 +460,8 @@ int EditorScreen::GetHoveredSegement(sf::Vector2<int> mousePos, int layer)
 		if (map->mapSeg[i]->layer == layer)
 		{
 			sf::Rect<float> dRect(
-				((map->mapSeg[i]->position.x - scroll.x) * map->layers[layer]->scale),
-				((map->mapSeg[i]->position.y - scroll.y) * map->layers[layer]->scale),
+				(map->mapSeg[i]->position.x - (scroll.x * map->layers[layer]->scale)),
+				(map->mapSeg[i]->position.y - (scroll.y * map->layers[layer]->scale)),
 				(map->segDef[map->mapSeg[i]->segmentIndex]->width * map->mapSeg[i]->scale.x),
 				(map->segDef[map->mapSeg[i]->segmentIndex]->height * map->mapSeg[i]->scale.y));
 

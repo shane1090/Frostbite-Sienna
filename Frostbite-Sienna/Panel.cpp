@@ -5,8 +5,6 @@ Panel::Panel()
 {
 	this->position = sf::Rect<float>(200,200,200,200);
 	this->title = "Test Panel";
-	dragged = false;
-	resizing = false;
 	isMoveable = true;
 	isResizable = true;
 	this->offset = 0;

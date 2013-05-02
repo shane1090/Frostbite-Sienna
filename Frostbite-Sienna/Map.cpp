@@ -40,17 +40,16 @@ void Map::Draw(sf::RenderWindow &Window, int startLayer, int endLayer, sf::Vecto
 		{
 			if (mapSeg[i]->layer == l)
 			{
-				sf::Rect<float> dRect;
-				dRect.left = (mapSeg[i]->position.x - scroll.x) * layers[mapSeg[i]->layer]->scale;
-				dRect.top = (mapSeg[i]->position.y - scroll.y) * layers[mapSeg[i]->layer]->scale;
-				dRect.width = (float)segDef[mapSeg[i]->segmentIndex]->width;
-				dRect.height = (float)segDef[mapSeg[i]->segmentIndex]->height;
+				sf::Vector2f position;
+
+				position.x = mapSeg[i]->position.x - (scroll.x * layers[mapSeg[i]->layer]->scale);
+				position.y = mapSeg[i]->position.y - (scroll.y * layers[mapSeg[i]->layer]->scale);
 
 				sf::Sprite segSprite;
+				segSprite.setOrigin((float)segDef[mapSeg[i]->segmentIndex]->width / 2.0f, (float)segDef[mapSeg[i]->segmentIndex]->height / 2.0f);
 				segSprite.setTexture(segDef[mapSeg[i]->segmentIndex]->tex);
-				segSprite.setPosition(dRect.left, dRect.top);
+				segSprite.setPosition(position.x, position.y);
 				segSprite.setScale(mapSeg[i]->scale.x, mapSeg[i]->scale.y);
-				segSprite.setOrigin(segDef[mapSeg[i]->segmentIndex]->width / 2, segDef[mapSeg[i]->segmentIndex]->height / 2);
 				segSprite.setRotation(mapSeg[i]->rotation);
 				Window.draw(segSprite);
 			}
@@ -67,54 +66,51 @@ void Map::DrawLedges(sf::RenderWindow &Window, sf::Vector2<float> &scroll, int c
 	{
 		if (ledges[i]->nodes.size() > 0)
 		{
+			sf::VertexArray lines(sf::LinesStrip, ledges[i]->nodes.size());
+
 			for (int n = 0; n < ledges[i]->nodes.size(); n++)
 			{
-				sf::Vector2<float> tVec;
-				tVec = ledges[i]->nodes[n];
-				tVec -= scroll;
-				tVec.x -= 3.0f;
-				tVec.y -= 3.0f;
-				
 				// Change colour if ledge is selected
 				if (curLedge == i)
 					tColor = sf::Color::Yellow;
 				else
 					tColor = sf::Color::White;
 
+				sf::Vector2<float> tVec;
+				tVec = ledges[i]->nodes[n];
+				tVec -= scroll;
+
+				lines[n].position = tVec;
+				lines[n].color = tColor;
+
+				tVec.x -= 2.0f;
+				tVec.y -= 2.0f;
+				
+				// Change colour if ledge is selected
+				if (curLedge == i)
+					lines[n].color = sf::Color::Yellow;
+				else
+					lines[n].color = sf::Color::White;
+
 				sf::CircleShape circle;
-				circle.setRadius(6);
+				circle.setRadius(4);
 				circle.setFillColor(tColor);
 				circle.setPosition(tVec.x, tVec.y);
+				circle.setOrigin(2,2);
 				Window.draw(circle);
-
-				if (n < ledges[i]->nodes.size() - 1)
-				{
-					sf::Vector2<float> nVec;
-					nVec = ledges[i]->nodes[n + 1];
-					nVec -= scroll;
-
-					float dx = nVec.x - tVec.x;
-					float dy = nVec.y - tVec.y;
-					float rot = atan2(dy, dx) * (180.0f/M_PI);
-					sf::RectangleShape line;
-					line.setSize(sf::Vector2f(std::sqrt(std::abs(dx)*std::abs(dx) + std::abs(dy)*std::abs(dy)), 2*2));
-					line.setOrigin(0, 2);
-					line.setPosition(tVec.x, tVec.y);
-					line.setRotation(rot);
-					line.setFillColor(tColor);
-					Window.draw(line);
-				}
 			}
+
+			Window.draw(lines);
 		}
 	}
 }
 
 void Map::LoadDefaultLayers()
 {
-	layers.push_back(new Layer("Background", .75f));
-	layers.push_back(new Layer("Close Background", 1.f));
-	layers.push_back(new Layer("Collision Layer", 1.f));
-	layers.push_back(new Layer("Close Foreground", 1.f));
+	layers.push_back(new Layer("Background", 0.75f));
+	layers.push_back(new Layer("Close Background", 1.0f));
+	layers.push_back(new Layer("Collision Layer", 1.0f));
+	layers.push_back(new Layer("Close Foreground", 1.0f));
 	layers.push_back(new Layer("Foreground", 1.25f));
 }
 

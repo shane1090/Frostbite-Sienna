@@ -3,7 +3,7 @@
 
 PlayTestScreen::PlayTestScreen(void)
 {
-	scroll = sf::Vector2<float>(-640.0f, -360.0f); // Set 0,0 to center of screen
+	scroll = sf::Vector2<float>(-640.0f, -450.0f); // Set 0,0 to center of screen
 	showLedges = false;
 }
 
@@ -41,7 +41,7 @@ void PlayTestScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	sprintf_s(fpsBuffer, "fps: %f", framerate);
 	fpsCounter.setString(fpsBuffer);
 
-	scroll += ((character->getLocation() - sf::Vector2f(640.0f, 360.0f)) - scroll) * elapsed.asSeconds() * 20.0f;
+	scroll += ((character->getLocation() - sf::Vector2f(640.0f, 450.0f)) - scroll) * elapsed.asSeconds() * 20.0f;
 
 	character->Update(Window, gameTime);
 

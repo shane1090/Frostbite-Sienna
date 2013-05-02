@@ -17,5 +17,8 @@ public:
 
 private:
 	sf::Vector2<int> mousePos, pMousePos;
+
+	int draggedPanel;
+	int resizingPanel;
 };
 
