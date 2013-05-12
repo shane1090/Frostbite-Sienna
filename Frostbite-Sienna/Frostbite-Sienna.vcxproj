@@ -126,16 +126,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Animation.cpp" />
     <ClCompile Include="Character.cpp" />
+    <ClCompile Include="CharacterEditorScreen.cpp" />
+    <ClCompile Include="CharDef.cpp" />
     <ClCompile Include="EditorScreen.cpp" />
+    <ClCompile Include="Frame.cpp" />
     <ClCompile Include="GlobalFunctions.cpp" />
     <ClCompile Include="InputManager.cpp" />
+    <ClCompile Include="KeyFrame.cpp" />
     <ClCompile Include="Layer.cpp" />
     <ClCompile Include="Ledge.cpp" />
     <ClCompile Include="Map.cpp" />
     <ClCompile Include="Panel.cpp" />
     <ClCompile Include="PanelManager.cpp" />
+    <ClCompile Include="Part.cpp" />
     <ClCompile Include="PlayTestScreen.cpp" />
+    <ClCompile Include="UI_CharPalettePanel.cpp" />
     <ClCompile Include="UI_LayerPanel.cpp" />
     <ClCompile Include="UI_SegmentPanel.cpp" />
     <ClCompile Include="UI_LedgePanel.cpp" />
@@ -148,17 +155,24 @@
     <ClCompile Include="UI_SegmentInfoPanel.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Animation.h" />
     <ClInclude Include="Character.h" />
+    <ClInclude Include="CharacterEditorScreen.h" />
+    <ClInclude Include="CharDef.h" />
     <ClInclude Include="EditorScreen.h" />
+    <ClInclude Include="Frame.h" />
     <ClInclude Include="GameScreen.h" />
     <ClInclude Include="GlobalFunctions.h" />
     <ClInclude Include="InputManager.h" />
+    <ClInclude Include="KeyFrame.h" />
     <ClInclude Include="Layer.h" />
     <ClInclude Include="Ledge.h" />
     <ClInclude Include="Map.h" />
     <ClInclude Include="Panel.h" />
     <ClInclude Include="PanelManager.h" />
+    <ClInclude Include="Part.h" />
     <ClInclude Include="PlayTestScreen.h" />
+    <ClInclude Include="UI_CharPalettePanel.h" />
     <ClInclude Include="UI_LayerPanel.h" />
     <ClInclude Include="UI_SegmentPanel.h" />
     <ClInclude Include="UI_LedgePanel.h" />

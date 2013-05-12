@@ -3,6 +3,7 @@
 #include "GameScreen.h"
 #include "EditorScreen.h"
 #include "PlayTestScreen.h"
+#include "CharacterEditorScreen.h"
 
 class ScreenManager
 {

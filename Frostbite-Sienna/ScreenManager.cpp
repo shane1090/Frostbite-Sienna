@@ -29,7 +29,7 @@ void ScreenManager::AddScreen(GameScreen *screen)
 
 void ScreenManager::Initialize()
 {
-	currentScreen = new EditorScreen();
+	currentScreen = new CharacterEditorScreen();
 }
 
 void ScreenManager::LoadContent()

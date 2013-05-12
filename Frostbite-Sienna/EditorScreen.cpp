@@ -242,6 +242,12 @@ void EditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	panelManager->Update(Window, gameTime);
 
 	pMousePos = mousePos;
+
+	// Change Editor
+	if (InputManager::instance().Pressed(sf::Keyboard::Tab))
+	{
+		ScreenManager::GetInstance().AddScreen(new CharacterEditorScreen);
+	}
 }
 
 void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
@@ -371,7 +377,7 @@ void EditorScreen::DrawToolBar(sf::RenderWindow &Window)
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 3)) // Layer change
 	{
-		layerPane->minimized = false;
+		layerPane->minimized = !layerPane->minimized;
 	}
 
 	/*x = x + 35;

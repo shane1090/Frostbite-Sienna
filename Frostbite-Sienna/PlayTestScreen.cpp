@@ -45,17 +45,17 @@ void PlayTestScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 	character->Update(Window, gameTime);
 
+	if (InputManager::instance().Pressed(sf::Keyboard::L))
+	{
+		showLedges = !showLedges;
+	}
+
 	// If escape pressed go back to the Editor
 	if (InputManager::instance().Pressed(sf::Keyboard::Escape))
 	{
 		EditorScreen *screen = new EditorScreen;
 		screen->SetMapData(map);
 		ScreenManager::GetInstance().AddScreen(screen);
-	}
-
-	if (InputManager::instance().Pressed(sf::Keyboard::L))
-	{
-		showLedges = !showLedges;
 	}
 }
 
