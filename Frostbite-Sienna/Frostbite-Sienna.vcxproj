@@ -142,6 +142,7 @@
     <ClCompile Include="PanelManager.cpp" />
     <ClCompile Include="Part.cpp" />
     <ClCompile Include="PlayTestScreen.cpp" />
+    <ClCompile Include="UI_CharPartsList.cpp" />
     <ClCompile Include="UI_CharPalettePanel.cpp" />
     <ClCompile Include="UI_LayerPanel.cpp" />
     <ClCompile Include="UI_SegmentPanel.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="PanelManager.h" />
     <ClInclude Include="Part.h" />
     <ClInclude Include="PlayTestScreen.h" />
+    <ClInclude Include="UI_CharPartsList.h" />
     <ClInclude Include="UI_CharPalettePanel.h" />
     <ClInclude Include="UI_LayerPanel.h" />
     <ClInclude Include="UI_SegmentPanel.h" />

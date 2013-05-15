@@ -5,7 +5,7 @@ CharacterEditorScreen::CharacterEditorScreen(void)
 {
 	FACE_LEFT = 0;
 	FACE_RIGHT = 1;
-	selPart = 0;
+	selPart = -1;
 	selFrame = 0;
 
 	charDef = new CharDef;
@@ -34,8 +34,11 @@ void CharacterEditorScreen::LoadContent()
 	// Intiliase panelManager
 	panelManager = new PanelManager();
 
-	charPalettePane = new UICharPalettePanel(charDef);
+	charPalettePane = new UICharPalettePanel(charDef, selFrame, legsTex, torsoTex, headTex);
 	panelManager->AddPanel(charPalettePane);
+
+	charPartsPane = new UICharPartsList(charDef, selFrame, selPart);
+	panelManager->AddPanel(charPartsPane);
 }
 
 void CharacterEditorScreen::LoadTextures(std::vector<sf::Texture> &textures, std::string path)
@@ -65,6 +68,38 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 
 	mousePos = InputManager::instance().getMousePosition();
 
+	int xM = mousePos.x - pMousePos.x;
+	int yM = mousePos.y - pMousePos.y;
+
+	if (!panelManager->CheckMouseHover(mousePos))
+	{
+		mouseHoverPart = GetHoveredPart(mousePos);
+		
+		if (selPart != -1 && mouseHoverPart == selPart)
+		{
+			if (InputManager::instance().HeldDown(sf::Mouse::Button::Left, true))
+			{
+				charDef->frames[selFrame]->parts[selPart]->location +=
+					sf::Vector2f((float)xM, (float)yM);
+			}
+		}
+
+		if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+		{
+			if (mouseHoverPart != -1) {
+				selPart = mouseHoverPart;
+			} else {
+				selPart = -1;
+			}
+		}
+	}
+	
+
+
+
+
+	panelManager->Update(Window, gameTime);
+
 	pMousePos = mousePos;
 
 	// Change Editor
@@ -76,9 +111,18 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 
 void CharacterEditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	DrawCharacter(sf::Vector2f(400.0f, 450.0f), 2.0f, FACE_RIGHT, selFrame, false, 1.0f, Window);
-	DrawPartsList(Window);
-	DrawPalette(Window);
+	DrawCharacter(sf::Vector2f(400.0f, 250.0f), 2.0f, FACE_RIGHT, selFrame, false, 1.0f, Window);
+
+	if (mouseHoverPart > -1)
+		DrawSelectedPart(Window, mouseHoverPart, sf::Color::White);
+
+	if (selPart > -1)
+	{
+		DrawSelectedPart(Window, selPart, sf::Color::Red);
+	}
+
+	panelManager->Draw(Window, gameTime);
+
 	DrawToolBar(Window);
 }
 
@@ -98,8 +142,9 @@ void CharacterEditorScreen::DrawCharacter(sf::Vector2f loc, float scale, int fac
 
 		float rotation = part->rotation;
 
-		sf::Vector2f location = part->location * scale + loc;
+		sf::Vector2f location = part->location + loc;
 		sf::Vector2f scaling = part->scaling * scale;
+		if (part->index >= 128) scaling *= 1.35f;
 
 		if (face == FACE_LEFT)
 		{
@@ -134,87 +179,9 @@ void CharacterEditorScreen::DrawCharacter(sf::Vector2f loc, float scale, int fac
 		sprite.setOrigin(32.0f, 32.0f);
 		sprite.setPosition(location.x, location.y);
 		sprite.setScale(scaling.x, scaling.y);
-		//sprite.setRotation(rotation);
+		sprite.setRotation(rotation);
 		Window.draw(sprite);
 
-	}
-}
-
-void CharacterEditorScreen::DrawPalette(sf::RenderWindow &Window)
-{
-	for (int l = 0; l < 3; l++)
-	{
-		sf::Sprite sprite;
-
-		switch (l)
-		{
-			case 0:
-				sprite.setTexture(headTex[charDef->headIndex]);
-				break;
-			case 1:
-				sprite.setTexture(torsoTex[charDef->torsoIndex]);
-				break;
-			case 2:
-				sprite.setTexture(legsTex[charDef->legsIndex]);
-				break;
-		}
-
-		for (int i = 0; i < 25; i++)
-		{
-			sf::Rect<int> sRect;
-			sRect.left = (i % 5) * 64;
-			sRect.top = (i / 5) * 64;
-			sRect.width = 64;
-			sRect.height = 64;
-
-			// draw
-			sprite.setTextureRect(sRect);
-			sprite.setOrigin(32.0f, 32.0f);
-			sprite.setPosition(i * 23, 467 + (l * 32));
-			sprite.setScale(.5f, .5f);
-			Window.draw(sprite);
-
-			if (mousePos.x > (i * 23) && mousePos.x < ((i * 23) + 32) &&
-				mousePos.y > (467 + (l * 32)) && mousePos.y < ((467 + (l * 32)) + 32))
-			{
-				if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
-				{
-					charDef->frames[selFrame]->parts.push_back(new Part(i + 64 * l));
-					std::cout << "Added new part: " << (i + 64 * l) << std::endl;
-				}
-			}
-		}
-	}
-}
-
-void CharacterEditorScreen::DrawPartsList(sf::RenderWindow &Window)
-{
-	text.setFont(font);
-	text.setCharacterSize(12);
-	text.setColor(sf::Color::White);
-	
-	for (int i = 0; i < charDef->frames[selFrame]->parts.size(); i++)
-	{
-		int y = 5 + i * 15;
-		int index = charDef->frames[selFrame]->parts[i]->index;
-		
-		if (index < 64)
-			text.setString("head " + Convert(index));
-		else if (index < 74)
-			text.setString("torso " + Convert(index));
-		else if (index < 128)
-			text.setString("arms " + Convert(index));
-		else
-			text.setString("legs " + Convert(index));
-
-		text.setPosition(600, y);
-
-		if (selPart == i)
-		{
-
-		}
-		
-		Window.draw(text);
 	}
 }
 
@@ -270,4 +237,61 @@ bool CharacterEditorScreen::DrawButton(sf::RenderWindow &Window, int x, int y, i
 	Window.draw(segSprite, sf::RenderStates::Default);
 
 	return r;
+}
+
+void CharacterEditorScreen::DrawSelectedPart(sf::RenderWindow &Window, int part, sf::Color color)
+{
+	sf::Rect<float> dRect;
+
+	dRect.left = charDef->frames[selFrame]->parts[part]->location.x + 400.0f;
+	dRect.top = charDef->frames[selFrame]->parts[part]->location.y + 250.0f;
+	dRect.width = 64.0f * 2.0f;
+	dRect.height = 64.0f * 2.0f;
+
+
+	sf::RectangleShape segmentShape;
+	segmentShape.setPosition(dRect.left, dRect.top);
+	segmentShape.setRotation(charDef->frames[selFrame]->parts[part]->rotation);
+	segmentShape.setOrigin(dRect.width / 2, dRect.height / 2);
+	
+	sf::Vector2<float> segmentSize(dRect.width, dRect.height);
+	
+	segmentShape.setSize(segmentSize);
+	segmentShape.setFillColor(sf::Color::Transparent);
+	segmentShape.setOutlineColor(color);
+	segmentShape.setOutlineThickness(1);
+	Window.draw(segmentShape);
+}
+
+int CharacterEditorScreen::GetHoveredPart(sf::Vector2<int> mousePos)
+{
+	int hoveredPart = -1;
+
+	for (int i = 0; i < charDef->frames[selFrame]->parts.size(); i++)
+	{
+		sf::Rect<float> dRect(
+			(charDef->frames[selFrame]->parts[i]->location.x + 400.0f),
+			(charDef->frames[selFrame]->parts[i]->location.y + 250.0f),
+			64 * 2.0f,
+			64 * 2.0f);
+
+		float c = cos(-charDef->frames[selFrame]->parts[i]->rotation * M_PI / 180);
+		float s = sin(-charDef->frames[selFrame]->parts[i]->rotation * M_PI / 180);
+
+		float rotatedX = dRect.left + c * (mousePos.x - dRect.left) - s * (mousePos.y - dRect.top);
+		float rotatedY = dRect.top + s * (mousePos.x - dRect.left) + c * (mousePos.y - dRect.top);
+
+		float leftX = dRect.left - dRect.width / 2;
+		float rightX = dRect.left + dRect.width / 2;
+		float topY = dRect.top - dRect.height / 2;
+		float bottomY = dRect.top + dRect.height / 2;
+
+		if (leftX <= rotatedX && rotatedX <= rightX &&
+			topY <= rotatedY && rotatedY <= bottomY)
+		{
+			hoveredPart = i;
+		}
+	}
+
+	return hoveredPart;
 }

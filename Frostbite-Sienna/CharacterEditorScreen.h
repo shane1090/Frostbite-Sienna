@@ -5,6 +5,7 @@
 #include "CharDef.h"
 #include "PanelManager.h"
 #include "UI_CharPalettePanel.h"
+#include "UI_CharPartsList.h"
 
 class CharacterEditorScreen : public GameScreen
 {
@@ -18,8 +19,8 @@ public:
 	void DrawCharacter(sf::Vector2f loc, float scale, int face, int frameIndex, bool preview, float alpha, sf::RenderWindow &Window);
 	void DrawToolBar(sf::RenderWindow &Window);
 	bool DrawButton(sf::RenderWindow &Window, int x, int y, int index);
-	void DrawPalette(sf::RenderWindow &Window);
-	void DrawPartsList(sf::RenderWindow &Window);
+	void DrawSelectedPart(sf::RenderWindow &Window, int part, sf::Color color);
+	int GetHoveredPart(sf::Vector2<int> mousePos);
 
 private:
 	void LoadTextures(std::vector<sf::Texture> &textures, std::string path);
@@ -44,5 +45,8 @@ private:
 
 	PanelManager *panelManager;
 	Panel *charPalettePane;
+	Panel *charPartsPane;
+
+	int mouseHoverPart;
 };
 

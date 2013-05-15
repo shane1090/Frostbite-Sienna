@@ -5,6 +5,7 @@ PanelManager::PanelManager(void)
 {
 	draggedPanel = -1;
 	resizingPanel = -1;
+	activePanel = -1;
 }
 
 PanelManager::~PanelManager(void)
@@ -20,6 +21,9 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	{
 		if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
 		{
+			if (panels[i]->position.contains(mousePos.x, mousePos.y))
+				activePanel = i;
+
 			if (panels[i]->isMoveable)
 			{
 				// Drag handle
@@ -28,7 +32,7 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				dragHandle.width = dragHandle.width;
 				if (dragHandle.contains(mousePos.x, mousePos.y))
 				{
-					draggedPanel = i;
+					draggedPanel = panels.size() - 1;
 				}
 			}
 
@@ -42,7 +46,7 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				resizeHandle.width = 10;
 				if (resizeHandle.contains(mousePos.x, mousePos.y))
 				{
-					resizingPanel = i;
+					resizingPanel = panels.size() - 1;
 				}
 			}
 
@@ -79,6 +83,17 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 			position.height += (mousePos.y - pMousePos.y);
 			panels[resizingPanel]->position = position;
 		}
+	}
+
+	if (activePanel != panels.size() && activePanel > -1)
+	{
+		Panel *p1 = panels[activePanel];
+		Panel *p2 = panels[panels.size()-1];
+
+		panels[panels.size()-1] = p1;
+		panels[activePanel] = p2;
+
+		activePanel = -1;
 	}
 
 	pMousePos = mousePos;
