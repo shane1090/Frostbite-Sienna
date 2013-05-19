@@ -7,8 +7,11 @@ CharacterEditorScreen::CharacterEditorScreen(void)
 	FACE_RIGHT = 1;
 	selPart = -1;
 	selFrame = 0;
+	selAnim = 0;
 
 	charDef = new CharDef;
+
+	editingMode = NONE;
 
 	// Generate initial Frame
 	charDef->frames.push_back(new Frame);
@@ -39,6 +42,9 @@ void CharacterEditorScreen::LoadContent()
 
 	charPartsPane = new UICharPartsList(charDef, selFrame, selPart);
 	panelManager->AddPanel(charPartsPane);
+
+	charFramesPane = new UICharFramesPanel(charDef);
+	panelManager->AddPanel(charFramesPane);
 }
 
 void CharacterEditorScreen::LoadTextures(std::vector<sf::Texture> &textures, std::string path)
@@ -75,12 +81,24 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 	{
 		mouseHoverPart = GetHoveredPart(mousePos);
 		
-		if (selPart != -1 && mouseHoverPart == selPart)
+		if (selPart != -1)
 		{
-			if (InputManager::instance().HeldDown(sf::Mouse::Button::Left, true))
+			if (InputManager::instance().HeldDown(sf::Mouse::Button::Left, true) && mouseHoverPart == selPart)
 			{
 				charDef->frames[selFrame]->parts[selPart]->location +=
 					sf::Vector2f((float)xM, (float)yM);
+			}
+
+			if (InputManager::instance().HeldDown(sf::Keyboard::R))
+			{
+				charDef->frames[selFrame]->parts[selPart]->rotation +=
+					(float)yM;
+			}
+
+			if (InputManager::instance().HeldDown(sf::Keyboard::S))
+			{
+				charDef->frames[selFrame]->parts[selPart]->scaling +=
+					sf::Vector2f((float)xM * 0.01f, (float)yM * 0.01f);
 			}
 		}
 
@@ -92,6 +110,8 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 				selPart = -1;
 			}
 		}
+
+
 	}
 	
 
@@ -245,8 +265,8 @@ void CharacterEditorScreen::DrawSelectedPart(sf::RenderWindow &Window, int part,
 
 	dRect.left = charDef->frames[selFrame]->parts[part]->location.x + 400.0f;
 	dRect.top = charDef->frames[selFrame]->parts[part]->location.y + 250.0f;
-	dRect.width = 64.0f * 2.0f;
-	dRect.height = 64.0f * 2.0f;
+	dRect.width = 64.0f * 2.0f * charDef->frames[selFrame]->parts[part]->scaling.x;
+	dRect.height = 64.0f * 2.0f * charDef->frames[selFrame]->parts[part]->scaling.y;
 
 
 	sf::RectangleShape segmentShape;
@@ -272,8 +292,8 @@ int CharacterEditorScreen::GetHoveredPart(sf::Vector2<int> mousePos)
 		sf::Rect<float> dRect(
 			(charDef->frames[selFrame]->parts[i]->location.x + 400.0f),
 			(charDef->frames[selFrame]->parts[i]->location.y + 250.0f),
-			64 * 2.0f,
-			64 * 2.0f);
+			64 * 2.0f * charDef->frames[selFrame]->parts[i]->scaling.x,
+			64 * 2.0f * charDef->frames[selFrame]->parts[i]->scaling.x);
 
 		float c = cos(-charDef->frames[selFrame]->parts[i]->rotation * M_PI / 180);
 		float s = sin(-charDef->frames[selFrame]->parts[i]->rotation * M_PI / 180);
@@ -294,4 +314,48 @@ int CharacterEditorScreen::GetHoveredPart(sf::Vector2<int> mousePos)
 	}
 
 	return hoveredPart;
+}
+
+void CharacterEditorScreen::PressKey()
+{
+	std::string t = "";
+	switch (editingMode)
+	{
+		case FRAME:
+			t = charDef->frames[selFrame]->name;
+			break;
+		case ANIMATION:
+			t = charDef->animations[selAnim]->name;
+		case PATH:
+			t = charDef->path;
+			break;
+		default:
+			return;
+	}
+
+	if (InputManager::instance().Pressed(sf::Keyboard::Delete))
+	{
+		if (t.length() > 0) 
+			t = t.substr(0, t.length() - 1);
+	}
+	else if (InputManager::instance().Pressed(sf::Keyboard::Return))
+	{
+		editingMode = NONE;
+	}
+	else
+	{
+		t += InputManager::instance().getCurrentKey();
+	}
+
+	switch (editingMode)
+	{
+		case FRAME:
+			charDef->frames[selFrame]->name = t;
+			break;
+		case ANIMATION:
+			charDef->animations[selAnim]->name = t;
+		case PATH:
+			charDef->path = t;
+			break;
+	}
 }

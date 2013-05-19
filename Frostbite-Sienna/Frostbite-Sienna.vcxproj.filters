@@ -141,6 +141,9 @@
     <ClCompile Include="UI_CharPartsList.cpp">
       <Filter>Source Files\UI\Panels</Filter>
     </ClCompile>
+    <ClCompile Include="UI_CharFramesPanel.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -225,6 +228,9 @@
       <Filter>Header Files\UI\Panels</Filter>
     </ClInclude>
     <ClInclude Include="UI_CharPartsList.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_CharFramesPanel.h">
       <Filter>Header Files\UI\Panels</Filter>
     </ClInclude>
   </ItemGroup>

@@ -9,5 +9,6 @@ public:
 	~Animation(void);
 
 	std::vector<KeyFrame*> keyFrames;
+	sf::String name;
 };
 

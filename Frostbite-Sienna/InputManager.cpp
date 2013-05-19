@@ -22,6 +22,8 @@ void InputManager::Poll(sf::RenderWindow &Window)
 
 void InputManager::Update(sf::Event event)
 {
+	currentKey = event.KeyPressed;
+
 	if (event.type == sf::Event::MouseMoved)
 	{
 		mousePosition.x = event.mouseMove.x;

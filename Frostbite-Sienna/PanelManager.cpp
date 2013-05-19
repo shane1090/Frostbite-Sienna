@@ -60,6 +60,7 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 				panels[i]->minimized = true;
 			}
 		}
+
 		panels[i]->Update(Window,gameTime);
 	}
 
@@ -93,7 +94,7 @@ void PanelManager::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 		panels[panels.size()-1] = p1;
 		panels[activePanel] = p2;
 
-		activePanel = -1;
+		activePanel = panels.size() - 1;
 	}
 
 	pMousePos = mousePos;

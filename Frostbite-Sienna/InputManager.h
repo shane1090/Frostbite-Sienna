@@ -13,6 +13,7 @@ public:
 	int mouseWheel(){return mouseWheelClicks;}
 	void ClearUnique();
 	sf::Vector2i getMousePosition(){return mousePosition;}
+	char getCurrentKey(){ return currentKey; }
 
 private:
 	std::set<int> down;
@@ -25,6 +26,7 @@ private:
 	std::set<int> pressedButton;
 	std::set<int> releasedButton;
 	sf::Vector2i mousePosition;
+	char currentKey;
 	int mouseWheelClicks;
 
 public:
