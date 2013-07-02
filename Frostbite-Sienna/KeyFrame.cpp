@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "KeyFrame.h"
 
-KeyFrame::KeyFrame(void)
+KeyFrame::KeyFrame(int frameRef, int duration)
 {
-
+	this->frameRef = frameRef;
+	this->duration = duration;
 }
 
 

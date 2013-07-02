@@ -7,6 +7,7 @@ UICharPartsList::UICharPartsList(CharDef *&charDef, int &selFrame, int &selPart)
 	this->title = "Parts List";
 	this->position = sf::Rect<float>(1070,50,200,300);
 	this->isResizable = false;
+	this->isCloseable = false;
 }
 
 UICharPartsList::~UICharPartsList(void)

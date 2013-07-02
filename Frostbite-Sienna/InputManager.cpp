@@ -6,6 +6,7 @@ void InputManager::Poll(sf::RenderWindow &Window)
 	ClearUnique();
 
 	mouseWheelClicks = 0;
+	currentKey = -1;
 
 	// Process events
 	sf::Event event;
@@ -22,12 +23,17 @@ void InputManager::Poll(sf::RenderWindow &Window)
 
 void InputManager::Update(sf::Event event)
 {
-	currentKey = event.KeyPressed;
-
 	if (event.type == sf::Event::MouseMoved)
 	{
 		mousePosition.x = event.mouseMove.x;
 		mousePosition.y = event.mouseMove.y;
+		return;
+	}
+
+	if (event.type == sf::Event::TextEntered)
+	{
+		if (event.text.unicode < 128)
+			currentKey = event.text.unicode;
 		return;
 	}
 
@@ -78,6 +84,12 @@ void InputManager::Update(sf::Event event)
 	}
 
 	//std::cout << "Button: " << event.joystickButton.button << std::endl;
+}
+
+char InputManager::GetCurrentKey()
+{
+	if (currentKey)
+		return currentKey;
 }
 
 bool InputManager::Pressed(int value, bool mouse, bool gamepad) // default false

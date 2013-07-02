@@ -314,10 +314,9 @@ void EditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 	circle.setOutlineThickness(3);
 	circle.setOrigin(3,3);
 
-	sf::Vector2<float> centerPoint(.0f,.0f);
-
+	/*sf::Vector2<float> centerPoint(.0f,.0f);
 	circle.setPosition(sf::Vector2f(centerPoint.x - scroll.x, centerPoint.y - scroll.y));
-	Window.draw(circle);
+	Window.draw(circle);*/
 
 	panelManager->Draw(Window, gameTime);
 

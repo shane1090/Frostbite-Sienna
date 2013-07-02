@@ -3,7 +3,7 @@
 
 Frame::Frame(void)
 {
-
+	this->name = "frame";
 }
 
 

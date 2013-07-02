@@ -144,6 +144,15 @@
     <ClCompile Include="UI_CharFramesPanel.cpp">
       <Filter>Source Files\UI\Panels</Filter>
     </ClCompile>
+    <ClCompile Include="UI_CharAnimationsList.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_CharKeyFramesList.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
+    <ClCompile Include="UI_CharPreview.cpp">
+      <Filter>Source Files\UI\Panels</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="stdafx.h">
@@ -231,6 +240,15 @@
       <Filter>Header Files\UI\Panels</Filter>
     </ClInclude>
     <ClInclude Include="UI_CharFramesPanel.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_CharAnimationsList.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_CharKeyFramesList.h">
+      <Filter>Header Files\UI\Panels</Filter>
+    </ClInclude>
+    <ClInclude Include="UI_CharPreview.h">
       <Filter>Header Files\UI\Panels</Filter>
     </ClInclude>
   </ItemGroup>

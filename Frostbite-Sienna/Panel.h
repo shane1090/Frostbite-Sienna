@@ -13,6 +13,7 @@ public:
 	std::string title;
 	bool isMoveable;
 	bool isResizable;
+	bool isCloseable;
 	bool minimized;
 
 	sf::View panelView;

@@ -3,7 +3,7 @@
 
 Animation::Animation(void)
 {
-
+	this->name = "animation";
 }
 
 

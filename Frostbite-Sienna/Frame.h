@@ -9,6 +9,6 @@ public:
 	~Frame(void);
 
 	std::vector<Part*> parts;
-	sf::String name;
+	std::string name;
 };
 

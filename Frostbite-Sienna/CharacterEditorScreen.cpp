@@ -8,13 +8,13 @@ CharacterEditorScreen::CharacterEditorScreen(void)
 	selPart = -1;
 	selFrame = 0;
 	selAnim = 0;
+	selKeyFrame = -1;
 
 	charDef = new CharDef;
 
-	editingMode = NONE;
-
 	// Generate initial Frame
 	charDef->frames.push_back(new Frame);
+	charDef->animations.push_back(new Animation);
 }
 
 CharacterEditorScreen::~CharacterEditorScreen(void)
@@ -43,8 +43,17 @@ void CharacterEditorScreen::LoadContent()
 	charPartsPane = new UICharPartsList(charDef, selFrame, selPart);
 	panelManager->AddPanel(charPartsPane);
 
-	charFramesPane = new UICharFramesPanel(charDef);
+	charFramesPane = new UICharFramesPanel(charDef, selPart, selFrame, selAnim);
 	panelManager->AddPanel(charFramesPane);
+
+	charAnimationsPane = new UICharAnimationsList(charDef, selPart, selFrame, selAnim);
+	panelManager->AddPanel(charAnimationsPane);
+
+	charKeyFramesPane = new UICharKeyFramesList(charDef, selAnim, selKeyFrame);
+	panelManager->AddPanel(charKeyFramesPane);
+
+	charPreviewPane = new UICharPreview(charDef, legsTex, torsoTex, headTex, selAnim, selKeyFrame);
+	panelManager->AddPanel(charPreviewPane);
 }
 
 void CharacterEditorScreen::LoadTextures(std::vector<sf::Texture> &textures, std::string path)
@@ -86,7 +95,7 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 			if (InputManager::instance().HeldDown(sf::Mouse::Button::Left, true) && mouseHoverPart == selPart)
 			{
 				charDef->frames[selFrame]->parts[selPart]->location +=
-					sf::Vector2f((float)xM, (float)yM);
+					sf::Vector2f((float)xM / 2.0f, (float)yM / 2.0f);
 			}
 
 			if (InputManager::instance().HeldDown(sf::Keyboard::R))
@@ -99,6 +108,15 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 			{
 				charDef->frames[selFrame]->parts[selPart]->scaling +=
 					sf::Vector2f((float)xM * 0.01f, (float)yM * 0.01f);
+			}
+
+			// Allow deletion of segments
+			if (InputManager::instance().Pressed(sf::Keyboard::Delete))
+			{
+				std::cout << "Part deleted: " << selPart << std::endl;
+				charDef->frames[selFrame]->parts.erase(charDef->frames[selFrame]->parts.begin()+selPart);
+				selPart = -1;
+				mouseHoverPart = -1;
 			}
 		}
 
@@ -131,7 +149,13 @@ void CharacterEditorScreen::Update(sf::RenderWindow &Window, sf::Clock &gameTime
 
 void CharacterEditorScreen::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 {
-	DrawCharacter(sf::Vector2f(400.0f, 250.0f), 2.0f, FACE_RIGHT, selFrame, false, 1.0f, Window);
+	if (selFrame > 0)
+		DrawCharacter(sf::Vector2f(400.0f, 250.0f), 2.0f, FACE_RIGHT, selFrame - 1, false, 100.0f, Window);
+
+	if (selFrame < (charDef->frames.size() - 1))
+		DrawCharacter(sf::Vector2f(400.0f, 250.0f), 2.0f, FACE_RIGHT, selFrame + 1, false, 100.0f, Window);
+	
+	DrawCharacter(sf::Vector2f(400.0f, 250.0f), 2.0f, FACE_RIGHT, selFrame, false, 255.0f, Window);
 
 	if (mouseHoverPart > -1)
 		DrawSelectedPart(Window, mouseHoverPart, sf::Color::White);
@@ -162,7 +186,7 @@ void CharacterEditorScreen::DrawCharacter(sf::Vector2f loc, float scale, int fac
 
 		float rotation = part->rotation;
 
-		sf::Vector2f location = part->location + loc;
+		sf::Vector2f location = part->location * scale + loc;
 		sf::Vector2f scaling = part->scaling * scale;
 		if (part->index >= 128) scaling *= 1.35f;
 
@@ -200,6 +224,7 @@ void CharacterEditorScreen::DrawCharacter(sf::Vector2f loc, float scale, int fac
 		sprite.setPosition(location.x, location.y);
 		sprite.setScale(scaling.x, scaling.y);
 		sprite.setRotation(rotation);
+		sprite.setColor(sf::Color(255,255,255,alpha));
 		Window.draw(sprite);
 
 	}
@@ -263,8 +288,11 @@ void CharacterEditorScreen::DrawSelectedPart(sf::RenderWindow &Window, int part,
 {
 	sf::Rect<float> dRect;
 
-	dRect.left = charDef->frames[selFrame]->parts[part]->location.x + 400.0f;
-	dRect.top = charDef->frames[selFrame]->parts[part]->location.y + 250.0f;
+	if (part < 0)
+		std::cout << "Problem" << std::endl;
+
+	dRect.left = charDef->frames[selFrame]->parts[part]->location.x * 2.0f + 400.0f;
+	dRect.top = charDef->frames[selFrame]->parts[part]->location.y * 2.0f + 250.0f;
 	dRect.width = 64.0f * 2.0f * charDef->frames[selFrame]->parts[part]->scaling.x;
 	dRect.height = 64.0f * 2.0f * charDef->frames[selFrame]->parts[part]->scaling.y;
 
@@ -290,8 +318,8 @@ int CharacterEditorScreen::GetHoveredPart(sf::Vector2<int> mousePos)
 	for (int i = 0; i < charDef->frames[selFrame]->parts.size(); i++)
 	{
 		sf::Rect<float> dRect(
-			(charDef->frames[selFrame]->parts[i]->location.x + 400.0f),
-			(charDef->frames[selFrame]->parts[i]->location.y + 250.0f),
+			(charDef->frames[selFrame]->parts[i]->location.x * 2.0f + 400.0f),
+			(charDef->frames[selFrame]->parts[i]->location.y * 2.0f + 250.0f),
 			64 * 2.0f * charDef->frames[selFrame]->parts[i]->scaling.x,
 			64 * 2.0f * charDef->frames[selFrame]->parts[i]->scaling.x);
 
@@ -314,48 +342,4 @@ int CharacterEditorScreen::GetHoveredPart(sf::Vector2<int> mousePos)
 	}
 
 	return hoveredPart;
-}
-
-void CharacterEditorScreen::PressKey()
-{
-	std::string t = "";
-	switch (editingMode)
-	{
-		case FRAME:
-			t = charDef->frames[selFrame]->name;
-			break;
-		case ANIMATION:
-			t = charDef->animations[selAnim]->name;
-		case PATH:
-			t = charDef->path;
-			break;
-		default:
-			return;
-	}
-
-	if (InputManager::instance().Pressed(sf::Keyboard::Delete))
-	{
-		if (t.length() > 0) 
-			t = t.substr(0, t.length() - 1);
-	}
-	else if (InputManager::instance().Pressed(sf::Keyboard::Return))
-	{
-		editingMode = NONE;
-	}
-	else
-	{
-		t += InputManager::instance().getCurrentKey();
-	}
-
-	switch (editingMode)
-	{
-		case FRAME:
-			charDef->frames[selFrame]->name = t;
-			break;
-		case ANIMATION:
-			charDef->animations[selAnim]->name = t;
-		case PATH:
-			charDef->path = t;
-			break;
-	}
 }

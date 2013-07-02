@@ -2,17 +2,16 @@
 #include "Panel.h"
 #include "CharDef.h"
 
-class UICharFramesPanel : public Panel
+class UICharAnimationsList : public Panel
 {
 public:
-	UICharFramesPanel(CharDef *&charDef, int &selPart, int &selFrame, int &selAnim);
-	~UICharFramesPanel(void);
+	UICharAnimationsList(CharDef *&charDef, int &selPart, int &selFrame, int &selAnim);
+	~UICharAnimationsList(void);
 	void Update(sf::RenderWindow &Window, sf::Clock &gameTime);
 	void Draw(sf::RenderWindow &Window, sf::Clock &gameTime);
 
 private:
-	void EditFrameName();
-	void CopyFrame(int src, int dest);
+	void EditName();
 
 	CharDef *charDef;
 	sf::Text text;
@@ -21,6 +20,6 @@ private:
 	int &selFrame;
 	int &selAnim;
 
-	bool editingFrameName;
+	bool editingName;
 };
 

@@ -7,6 +7,9 @@
 #include "UI_CharPalettePanel.h"
 #include "UI_CharPartsList.h"
 #include "UI_CharFramesPanel.h"
+#include "UI_CharAnimationsList.h"
+#include "UI_CharKeyFramesList.h"
+#include "UI_CharPreview.h"
 
 class CharacterEditorScreen : public GameScreen
 {
@@ -25,10 +28,6 @@ public:
 
 private:
 	void LoadTextures(std::vector<sf::Texture> &textures, std::string path);
-	void PressKey();
-
-	enum editingMode_t { NONE, FRAME, ANIMATION, PATH };
-	editingMode_t editingMode;
 
 	CharDef *charDef;
 
@@ -39,7 +38,7 @@ private:
 	std::vector<sf::Texture> torsoTex;
 	std::vector<sf::Texture> headTex;
 
-	int selPart, selFrame, selAnim;
+	int selPart, selFrame, selAnim, selKeyFrame;
 
 	sf::Texture toolbarIconsTex;
 	sf::Font font;
@@ -52,6 +51,9 @@ private:
 	Panel *charPalettePane;
 	Panel *charPartsPane;
 	Panel *charFramesPane;
+	Panel *charAnimationsPane;
+	Panel *charKeyFramesPane;
+	Panel *charPreviewPane;
 
 	int mouseHoverPart;
 };

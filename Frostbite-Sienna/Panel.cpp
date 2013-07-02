@@ -7,11 +7,14 @@ Panel::Panel()
 	this->title = "Test Panel";
 	isMoveable = true;
 	isResizable = true;
-	this->offset = 0;
+	isCloseable = true;
 	this->scrollDrag = false;
 	this->minimized = false;
 	this->font.loadFromFile("Assets/Fonts/arial.ttf");
 	sTargetHeight = 0;
+	sMin = 0;
+	sMax = 0;
+	offset = 0;
 }
 
 Panel::~Panel(void)
@@ -26,12 +29,15 @@ void Panel::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 	if (mousePos.x > position.left && mousePos.y > position.top &&
 		mousePos.x < (position.left + position.width) && mousePos.y < (position.top + position.height))
 	{
-		if ((InputManager::instance().mouseWheel() < 0))
+		if (sMax > 0.f)
 		{
-			offset = offset + 30;
-		} else if ((InputManager::instance().mouseWheel() > 0))
-		{
-			offset = offset - 30;
+			if ((InputManager::instance().mouseWheel() < 0))
+			{
+				offset = offset + 30;
+			} else if ((InputManager::instance().mouseWheel() > 0))
+			{
+				offset = offset - 30;
+			}
 		}
 	}
 
@@ -53,7 +59,7 @@ void Panel::Update(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 	if (offset < sMin)
 		offset = sMin;
-	else if (offset > sMax)
+	else if (offset > sMax && sMax > 0.f)
 		offset = sMax;
 
 	pMousePos = mousePos;
@@ -84,26 +90,29 @@ void Panel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 	headerShape.setOutlineThickness(1);
 	Window.draw(headerShape);
 
-	if(mousePos.x > ((position.left + position.width) - 25) && mousePos.x < (position.left + position.width) &&
-		mousePos.y > position.top && mousePos.y < (position.top + 25))
+	if (isCloseable)
 	{
-		// Draw panel close button
-		sf::RectangleShape closeButtonShape;
-		closeButtonShape.setPosition((position.left + position.width) - 25, position.top);
-		sf::Vector2<float> closeButtonSize((25), 25);
-		closeButtonShape.setSize(closeButtonSize);
-		closeButtonShape.setFillColor(sf::Color(41,62,96,255));
-		Window.draw(closeButtonShape);
+		if(mousePos.x > ((position.left + position.width) - 25) && mousePos.x < (position.left + position.width) &&
+			mousePos.y > position.top && mousePos.y < (position.top + 25))
+		{
+			// Draw panel close button
+			sf::RectangleShape closeButtonShape;
+			closeButtonShape.setPosition((position.left + position.width) - 25, position.top);
+			sf::Vector2<float> closeButtonSize((25), 25);
+			closeButtonShape.setSize(closeButtonSize);
+			closeButtonShape.setFillColor(sf::Color(41,62,96,255));
+			Window.draw(closeButtonShape);
+		}
+	
+		sf::Text closeX;
+		closeX.setString("x");
+		closeX.setFont(font);
+		closeX.setCharacterSize(16);
+		closeX.setPosition((position.left + position.width) - 16, position.top + 2);
+		closeX.setColor(sf::Color::White);
+		closeX.setStyle(sf::Text::Bold);
+		Window.draw(closeX);
 	}
-
-	sf::Text closeX;
-	closeX.setString("x");
-	closeX.setFont(font);
-	closeX.setCharacterSize(16);
-	closeX.setPosition((position.left + position.width) - 16, position.top + 2);
-	closeX.setColor(sf::Color::White);
-	closeX.setStyle(sf::Text::Bold);
-	Window.draw(closeX);
 
 	if (isResizable)
 	{
@@ -143,18 +152,21 @@ void Panel::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 		scrollPos = sf::Vector2<int>((position.left + position.width - 10),
 								   position.top + 26 + (scrollbarPercentage * offset));
 
-		sf::RectangleShape scrollBarShape;
-		scrollBarShape.setPosition(scrollPos.x, (position.top + 26));
-		sf::Vector2<float> scrollBarSize(10, sPanelHeight);
-		scrollBarShape.setSize(scrollBarSize);
-		scrollBarShape.setFillColor(sf::Color(46,70,109,200));
-		Window.draw(scrollBarShape);
+		if (scrollbarPercentage != 100.f)
+		{
+			sf::RectangleShape scrollBarShape;
+			scrollBarShape.setPosition(scrollPos.x, (position.top + 26));
+			sf::Vector2<float> scrollBarSize(10, sPanelHeight);
+			scrollBarShape.setSize(scrollBarSize);
+			scrollBarShape.setFillColor(sf::Color(46,70,109,200));
+			Window.draw(scrollBarShape);
 	
-		sf::RectangleShape scrollBarHandleShape;
-		scrollBarHandleShape.setPosition(scrollPos.x, scrollPos.y);
-		sf::Vector2<float> scrollBarHandleSize(10, scrollHandleHeight);
-		scrollBarHandleShape.setSize(scrollBarHandleSize);
-		scrollBarHandleShape.setFillColor(sf::Color(255,255,255,255));
-		Window.draw(scrollBarHandleShape);
+			sf::RectangleShape scrollBarHandleShape;
+			scrollBarHandleShape.setPosition(scrollPos.x, scrollPos.y);
+			sf::Vector2<float> scrollBarHandleSize(10, scrollHandleHeight);
+			scrollBarHandleShape.setSize(scrollBarHandleSize);
+			scrollBarHandleShape.setFillColor(sf::Color(255,255,255,255));
+			Window.draw(scrollBarHandleShape);
+		}
 	}
 }

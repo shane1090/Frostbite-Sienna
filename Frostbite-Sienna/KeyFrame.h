@@ -3,7 +3,7 @@
 class KeyFrame
 {
 public:
-	KeyFrame(void);
+	KeyFrame(int frameRef, int duration);
 	~KeyFrame(void);
 
 	int frameRef;
