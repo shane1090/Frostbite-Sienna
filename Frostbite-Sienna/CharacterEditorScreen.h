@@ -25,9 +25,12 @@ public:
 	bool DrawButton(sf::RenderWindow &Window, int x, int y, int index);
 	void DrawSelectedPart(sf::RenderWindow &Window, int part, sf::Color color);
 	int GetHoveredPart(sf::Vector2<int> mousePos);
+	void SaveCharacter();
+	void LoadCharacter();
 
 private:
 	void LoadTextures(std::vector<sf::Texture> &textures, std::string path);
+	void ResetCharacter();
 
 	CharDef *charDef;
 

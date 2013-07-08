@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <Windows.h>
 #include <TCHAR.H>
+#include "shobjidl.h"
 
 // Include SFML headers
 #include <SFML\System.hpp>
@@ -29,4 +30,9 @@ const int SCREEN_BPP = 32;
 
 const int FRICTION = 1000.0f;
 const int GRAVITY = 900.0f;
+
+const COMDLG_FILTERSPEC c_rgSaveTypes[] =
+{
+    {L"XML (*.xml)",       L"*.xml"}
+};
 

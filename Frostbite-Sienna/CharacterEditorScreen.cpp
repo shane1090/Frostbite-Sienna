@@ -247,16 +247,22 @@ void CharacterEditorScreen::DrawToolBar(sf::RenderWindow &Window)
 
 	if (DrawButton(Window, x, 5 , 0)) // New
 	{
+		ResetCharacter();
+		// Generate initial Frame
+		charDef->frames.push_back(new Frame);
+		charDef->animations.push_back(new Animation);
 	}
 
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 2)) // Save
 	{
+		SaveCharacter();
 	}
 
 	x = x + 35;
 	if (DrawButton(Window, x, 5 , 1)) // Load
 	{
+		LoadCharacter();
 	}
 }
 
@@ -342,4 +348,110 @@ int CharacterEditorScreen::GetHoveredPart(sf::Vector2<int> mousePos)
 	}
 
 	return hoveredPart;
+}
+
+void CharacterEditorScreen::SaveCharacter()
+{
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+        COINIT_DISABLE_OLE1DDE);
+	
+    if (SUCCEEDED(hr))
+    {
+		IFileSaveDialog *pFileSave = NULL;
+
+		HRESULT hr = CoCreateInstance(__uuidof(FileSaveDialog), NULL, 
+        CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileSave));
+
+		if (SUCCEEDED(hr))
+		{
+			hr = pFileSave->SetDefaultExtension(L"xml");
+			hr = pFileSave->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
+			hr = pFileSave->Show(NULL);
+
+			if (SUCCEEDED(hr))
+			{
+				IShellItem *pItem;
+				hr = pFileSave->GetResult(&pItem);
+
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+					// Display the file name to the user.
+					if (SUCCEEDED(hr))
+					{
+						std::string filePath = utf8_encode(pszFilePath);
+						
+						//map->SaveMap(filePath);
+
+						CoTaskMemFree(pszFilePath);
+					}
+					pItem->Release();
+				}
+			}
+			pFileSave->Release();
+		}
+		CoUninitialize();
+	}
+}
+
+void CharacterEditorScreen::LoadCharacter()
+{
+	HRESULT hr = CoInitializeEx(NULL, COINIT_APARTMENTTHREADED | 
+        COINIT_DISABLE_OLE1DDE);
+	
+    if (SUCCEEDED(hr))
+    {
+		IFileOpenDialog *pFileOpen = NULL;
+
+		HRESULT hr = CoCreateInstance(__uuidof(FileOpenDialog), NULL, 
+        CLSCTX_INPROC_SERVER, IID_PPV_ARGS(&pFileOpen));
+
+		if (SUCCEEDED(hr))
+		{
+			hr = pFileOpen->SetDefaultExtension(L"xml");
+			hr = pFileOpen->SetFileTypes(ARRAYSIZE(c_rgSaveTypes), c_rgSaveTypes);
+			hr = pFileOpen->Show(NULL);
+
+			if (SUCCEEDED(hr))
+			{
+				IShellItem *pItem;
+				hr = pFileOpen->GetResult(&pItem);
+
+				if (SUCCEEDED(hr))
+				{
+					PWSTR pszFilePath;
+					hr = pItem->GetDisplayName(SIGDN_FILESYSPATH, &pszFilePath);
+
+					// Display the file name to the user.
+					if (SUCCEEDED(hr))
+					{
+						// Reset current Character information
+						ResetCharacter();
+
+						std::string filePath = utf8_encode(pszFilePath);
+						//map->LoadMap(filePath);
+
+						CoTaskMemFree(pszFilePath);
+					}
+					pItem->Release();
+				}
+			}
+			pFileOpen->Release();
+		}
+		CoUninitialize();
+	}
+}
+
+void CharacterEditorScreen::ResetCharacter()
+{
+	// Empty charDef of all items
+	charDef->frames.clear();
+	charDef->animations.clear();
+
+	selPart = -1; 
+	selFrame = 0;
+	selAnim = 0;
+	selKeyFrame = -1;
 }

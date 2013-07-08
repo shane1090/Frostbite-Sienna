@@ -5,7 +5,7 @@ UICharPalettePanel::UICharPalettePanel(CharDef *&charDef, int &selFrame, std::ve
 	: selFrame(selFrame), legsTex(legsTex), torsoTex(torsoTex), headTex(headTex), Panel()
 {
 	this->charDef = charDef;
-	this->position = sf::Rect<float>(10,510,500,200);
+	this->position = sf::Rect<float>(10,510,820,200);
 	this->title = "Character Palette";
 	this->isResizable = false;
 	this->isCloseable = false;

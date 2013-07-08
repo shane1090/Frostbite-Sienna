@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<characterset>
+	<char name="head" tex="Assets\characters\head1.png" total="9" />
+	<char name="legs" tex="Assets\characters\legs1.png" total="7" />
+	<char name="torso" tex="Assets\characters\torso1.png" total="4" />
+	<char name="arms" tex="Assets\characters\arms1.png" total="8" />
+</characterset>

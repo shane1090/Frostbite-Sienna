@@ -7,7 +7,6 @@
 #include "Ledge.h"
 #include "UI_SegmentInfoPanel.h"
 #include "UI_LedgePanel.h"
-#include "shobjidl.h"
 #include "InputManager.h"
 #include "PanelManager.h"
 #include "Map.h"
@@ -71,9 +70,4 @@ private:
 	Panel *segmentPane;
 	Panel *layerPane;
 	Panel *ledgePane;
-};
-
-const COMDLG_FILTERSPEC c_rgSaveTypes[] =
-{
-    {L"Map Editor XML (*.xml)",       L"*.xml"}
 };
