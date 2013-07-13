@@ -383,7 +383,7 @@ void CharacterEditorScreen::SaveCharacter()
 					{
 						std::string filePath = utf8_encode(pszFilePath);
 						
-						//map->SaveMap(filePath);
+						charDef->SaveCharacter(filePath);
 
 						CoTaskMemFree(pszFilePath);
 					}
@@ -431,7 +431,7 @@ void CharacterEditorScreen::LoadCharacter()
 						ResetCharacter();
 
 						std::string filePath = utf8_encode(pszFilePath);
-						//map->LoadMap(filePath);
+						charDef->LoadCharacter(filePath);
 
 						CoTaskMemFree(pszFilePath);
 					}

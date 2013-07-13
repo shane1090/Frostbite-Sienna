@@ -9,6 +9,9 @@ public:
 	CharDef(void);
 	~CharDef(void);
 
+	void LoadCharacter(std::string filePath);
+	void SaveCharacter(std::string filePath);
+
 	std::vector<Animation*> animations;
 	std::vector<Frame*> frames;
 	sf::String path;
