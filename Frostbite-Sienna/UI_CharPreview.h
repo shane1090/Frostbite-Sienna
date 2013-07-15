@@ -24,7 +24,7 @@ private:
 
 	bool playing;
 
-	int curFrame;
+	float curFrame;
 
 	std::vector<sf::Texture> &legsTex;
 	std::vector<sf::Texture> &torsoTex;

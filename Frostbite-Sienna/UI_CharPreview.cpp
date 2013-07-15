@@ -19,7 +19,10 @@ UICharPreview::UICharPreview(CharDef *&charDef, std::vector<sf::Texture> &legsTe
 	FACE_RIGHT = 1;
 
 	curKey = 0;
-	curFrame = 0;
+	curFrame = 0.f;
+
+	text.setFont(font);
+	text.setCharacterSize(12);
 }
 
 
@@ -78,9 +81,24 @@ void UICharPreview::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 
 		DrawCharacter(sf::Vector2f(position.left + 30, position.top + 150), 1.0f, FACE_RIGHT, fref, true, 255.f, Window);
 
-		text.setFont(font);
-		text.setCharacterSize(12);
-		text.setPosition(position.left + 10, (position.top + position.height) - 10);
+		text.setPosition(position.left + 10, (position.top + position.height) - 20);
+
+		// This should be moved to Update
+		if (mousePos.x > position.left && mousePos.x < position.left + 35 &&
+			mousePos.y > ((position.top + position.height) - 20) && mousePos.y < (position.top + position.height))
+		{
+
+			text.setColor(sf::Color::Red);
+
+			if (InputManager::instance().Pressed(sf::Mouse::Button::Left, true))
+			{
+				playing = !playing;
+			}
+		}
+		else
+		{
+			text.setColor(sf::Color::White);
+		}
 
 		if (playing)
 		{
@@ -90,6 +108,8 @@ void UICharPreview::Draw(sf::RenderWindow &Window, sf::Clock &gameTime)
 		{
 			text.setString("play");
 		}
+
+		Window.draw(text);
 	}
 }
 

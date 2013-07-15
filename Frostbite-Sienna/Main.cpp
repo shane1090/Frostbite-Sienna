@@ -18,6 +18,8 @@ int main()
 		ScreenManager::GetInstance().Draw(Window, gameTime);
 
 		Window.display();
+
+		gameTime.restart();
 	}
 
 	return 0;
